@@ -1,0 +1,16 @@
+- platform: fitbit
+  clock_format: 24H
+  monitored_resources:
+    - "activities/calories"
+    - "activities/caloriesBMR"
+    - "activities/heart"
+    - "activities/steps"
+    - "devices/battery"
+    - "sleep/awakeningsCount"
+    - "sleep/efficiency"
+    - "sleep/minutesAfterWakeup"
+    - "sleep/minutesAsleep"
+    - "sleep/minutesAwake"
+    - "sleep/minutesToFallAsleep"
+    - "sleep/startTime"
+    - "sleep/timeInBed"

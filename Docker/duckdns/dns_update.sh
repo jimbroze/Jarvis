@@ -1,0 +1,1 @@
+echo url="https://www.duckdns.org/update?domains=${SUBDOMAIN}&token=${TOKEN}&ip=" | curl -v -k -K -

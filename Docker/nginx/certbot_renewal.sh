@@ -1,0 +1,1 @@
+certbot certonly -v --webroot -w /var/www/certbot -n --agree-tos -m $EMAIL -d $SUBDOMAIN.$DOMAIN -d www.$SUBDOMAIN.$DOMAIN 

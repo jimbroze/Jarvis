@@ -1,0 +1,57 @@
+version: '3'
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - /mnt/dietpi_userdata/homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    # depends_on:
+    #   - db
+
+  # db:
+  #   image: mariadb
+  #   restart: unless-stopped
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+  #     MYSQL_DATABASE: home_assistant
+  #     MARIADB_USER: "${HA_DB_USER}"
+  #     MARIADB_PASSWORD: "${HA_DB_PASSWORD}"
+  #   volumes:
+  #     - "/mnt/dietpi_userdata/homeassistant/db:/var/lib/mysql"
+  #   ports:
+  #     - "3306:3306"
+
+  nginx:
+    build:
+      context: ./nginx/
+      args:
+        DOMAIN: ${DOMAIN}
+        SUBDOMAIN: ${SUBDOMAIN}
+    environment:
+      DOMAIN: ${DOMAIN}
+      SUBDOMAIN: ${SUBDOMAIN}
+      EMAIL: ${EMAIL}
+      TOKEN: ${DUCKTOKEN}
+    depends_on:
+      - homeassistant
+    volumes:
+      - "./nginx/config:/etc/nginx/conf.d"
+      - "./certbot/data:/etc/letsencrypt"
+      # - "./certbot/www:/var/www/certbot"
+    network_mode: host
+    restart: unless-stopped
+
+  mosquitto:
+    build:
+      context: ./mosquitto/
+      args:
+        PASSWORD: ${MOSQUITTO_PASS}
+    volumes:
+      - ./mosquitto:/mosquitto/
+    ports:
+      - '1883:1883'
+    restart: unless-stopped
