@@ -48,6 +48,9 @@ http:
     - 127.0.0.1
     - 192.168.0.11
     - ::1
+homeassistant:
+  internal_url: http://192.168.0.11:8123
+  external_url: !secret HA_URL
 
 light:
   - platform: switch
