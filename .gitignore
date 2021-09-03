@@ -5,6 +5,7 @@ image/
 .storage/
 .cloud/
 Docker/certbot/data
+db/
 
 *.db
 *.db-shm

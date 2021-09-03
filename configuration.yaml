@@ -52,12 +52,6 @@ homeassistant:
   internal_url: http://192.168.0.11:8123
   external_url: !secret HA_URL
 
-# light:
-#   - platform: switch
-#     name: Bedroom Wall Light
-#     entity_id: switch.bedroom_wall_light
-#     unique_id: bedroom_wall_light
-
 logger:
   default: info
   logs:
@@ -75,8 +69,8 @@ mqtt:
   username: homeassistant
   password: !secret mqtt_pass
 
-# recorder:
-#   db_url: !secret recorder_db_url
+recorder:
+  db_url: !secret recorder_db_url
 
 spotify:
   client_id: !secret spotify_client
