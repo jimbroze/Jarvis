@@ -61,7 +61,11 @@ homeassistant:
 logger:
   default: info
   logs:
-    homeassistant.components.alexa: debug
+    # homeassistant.components.alexa: debug
+    homeassistant.components.sensor.fitbit: debug
+    homeassistant.components.fitbit: debug
+    custom_components.sensor.fitbit: debug
+    custom_components.fitbit: debug
 
 media_player:
 

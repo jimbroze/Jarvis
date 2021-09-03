@@ -103,7 +103,7 @@ def request_app_setup(
     description = f"""Please create a Fitbit developer app at
                        https://dev.fitbit.com/apps/new.
                        For the OAuth 2.0 Application Type choose Personal.
-                       Set the blob blob Callback URL to {start_url}.
+                       Set the Callback URL to {start_url}.
                        They will provide you a Client ID and secret.
                        These need to be saved into the file located at: {config_path}.
                        Then come back here and hit the below button.
