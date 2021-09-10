@@ -6,6 +6,10 @@ image/
 .cloud/
 Docker/certbot/data
 db/
+custom_components/
+www/
+
+!custom_components/fitbit
 
 *.db
 *.db-shm

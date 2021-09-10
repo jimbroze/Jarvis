@@ -12,6 +12,9 @@ services:
     depends_on:
       - db
 
+#docker exec -it homeassistant bash
+#wget -q -O - https://install.hacs.xyz | bash -
+
   db:
     image: mariadb
     restart: unless-stopped
@@ -55,3 +58,9 @@ services:
     ports:
       - '1883:1883'
     restart: unless-stopped
+
+  binday:
+    build:
+      context: ./binday/
+      volumes:
+        - "/mnt/dietpi_userdata/homeassistant/binday:/data"
