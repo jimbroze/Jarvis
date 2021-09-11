@@ -23,7 +23,7 @@ def get_data(filename, check=True):
         datareader = csv.reader(csvfile)
         yield next(datareader)  # yield the header row
         for row in datareader:
-            if check == False:
+            if check == False: # Bypass check
                 yield row
             else:
                 if check_row(row):
@@ -34,42 +34,38 @@ def google_auth():
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if os.path.exists('data/token.json'):
+        creds = Credentials.from_authorized_user_file('data/token.json', SCOPES)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+                'data/credentials.json', SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
-        with open('token.json', 'w') as token:
+        with open('data/token.json', 'w') as token:
             token.write(creds.to_json())
     return build('calendar', 'v3', credentials=creds)
 
-def create_event(service, date, bin):
-    # creates one hour event tomorrow 10 AM IST
-        d = datetime.datetime.utcnow().isoformat() + 'Z' # 'Z' indicates UTC time
-        tomorrow = datetime(d.year, d.month, d.day, 10)+datetime.timedelta(days=1)
-        start = tomorrow.isoformat()
-        end = (tomorrow + datetime.timedelta(hours=1)).isoformat()
+def create_event(service, dateString, bin):
+        binDate = datetime.strptime(dateString, '%d/%m/%Y')
+        binDateTime = binDate.isoformat()
 
         event_result = service.events().insert(calendarId='primary',
             body={
-                "summary": 'Automating calendar',
-                "description": 'This is a tutorial example of automating google calendar with python',
-                "start": {"dateTime": start, "timeZone": 'Asia/Kolkata'},
-                "end": {"dateTime": end, "timeZone": 'Asia/Kolkata'},
+                "summary": bin,
+                "start": {"dateTime": binDateTime, "timeZone": 'Europe/London'},
+                "end": {"dateTime": binDateTime, "timeZone": 'Europe/London'},
+                'reminders': {'useDefault': False},
             }
         ).execute()
 
-        print("created event")
+        print("Event created")
         print("id: ", event_result['id']) # Add to bin list
-        print("summary: ", event_result['summary'])
-        print("starts at: ", event_result['start']['dateTime'])
-        print("ends at: ", event_result['end']['dateTime'])
+        print("bin colour: ", event_result['summary'])
+        print("Date: ", event_result['start']['dateTime'])
         return event_result['id']
 
 
@@ -82,40 +78,56 @@ def main():
     urllib.request.urlretrieve("http://opendata.leeds.gov.uk/downloads/bins/dm_jobs.csv", "/data/raw.csv")
 
     # Retrieve and filter bin data from downloaded file
-    binDays = []
+    downloadedBinDays = []
     for row in get_data("/data/raw.csv"):
         # process row
-        binDays.append((row[2], row[1]))
+        downloadedBinDays.append((row[2], row[1]))
 
-
-
-
+    
     # Compare to previously saved data (if exists)
     if os.path.exists('/data/bin_events.csv'):
-        # Open and compare
-        get_data('/data/bin_events.csv', check=False)
+    #     # Open and compare
+    #     with open('/data/bin_events.csv', 'r') as fp:
+    #         s = fp.read()
 
-        # Compare dates only
+        # Bin days from fil with past dates deleted. They will still be in historic file.
+        existingBinDays = []
+        for binDay in get_data('/data/bin_events.csv', check=False):
+            if datetime.strptime(binDay(0), '%d/%m/%Y') < datetime.now():
+                existingBinDays.append(binDay)
 
-        newBinDays = binDays.sort(key=lambda tup: datetime.strptime(tup[0], '%d/%m/%Y'))
+        # New bin days that are not already in file
+        newBinDays = []
+        for binDay in downloadedBinDays:
+            if binDay(0) not in existingBinDays: # Check if date is in file
+                newBinDays.append(binDay)
+
+        sortedBinDays = newBinDays.sort(key=lambda tup: datetime.strptime(tup[0], '%d/%m/%Y'))
     else:
         # all data is new.
-        newBinDays = binDays.sort(key=lambda tup: datetime.strptime(tup[0], '%d/%m/%Y'))
+        sortedBinDays = downloadedBinDays.sort(key=lambda tup: datetime.strptime(tup[0], '%d/%m/%Y'))
 
-
-
+    # Create calendar event for each new bin day
     createdBinDays=[]
-
-    for binDay in newBinDays: # Create calendar event for each new bin day
+    for binDay in sortedBinDays: 
         id = create_event(service, binDay(0), binDay(1))
         createdBinDays.append((binDay(0), binDay(1), id))
 
-
-    #Add to file or create new file if doesnt exist 
-    with open('/data/bin_events.csv', mode='a') as binEventFile:
+    
+    # Existing bin days (from file) with new, unique days added in.
+    totalBinDays = existingBinDays + createdBinDays
+    # Overwrite current file with new dates bin_events.csv
+    with open('/data/bin_events.csv', mode='w') as binEventFile:
         binEventWriter = csv.writer(binEventFile, delimiter=',', fieldnames = ['Date','Bin','Event_ID'])
-        for row in createdBinDays:
+        for row in totalBinDays:
             binEventWriter.writerow(row)
+
+    #Add events to historic file or create new file if doesnt exist 
+    with open('/data/historic_bin_events.csv', mode='a') as binHistoricFile:
+        binHistoricWriter = csv.writer(binHistoricFile, delimiter=',', fieldnames = ['Date','Bin','Event_ID'])
+        for row in createdBinDays:
+            binHistoricWriter.writerow(row)
+            
 
 if __name__ == '__main__':
     main()

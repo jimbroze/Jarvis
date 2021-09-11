@@ -8,6 +8,7 @@ Docker/certbot/data
 db/
 custom_components/
 www/
+binday/
 
 !custom_components/fitbit
 
