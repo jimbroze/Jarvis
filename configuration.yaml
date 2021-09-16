@@ -27,6 +27,11 @@ device_tracker:
     new_device_defaults:
       track_new_devices: false
 
+google:
+  client_id: !secret GOOGLE_ID
+  client_secret: !secret GOOGLE_SECRET
+#   track_new_calendar: false
+
 google_assistant:
   project_id: jarvis-b89c8
   service_account: !include SERVICE_ACCOUNT.JSON
@@ -51,6 +56,10 @@ http:
 homeassistant:
   internal_url: http://192.168.0.11:8123
   external_url: !secret HA_URL
+
+light:
+  - platform: flux_led
+    automatic_add: true
 
 logger:
   default: info
