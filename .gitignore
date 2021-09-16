@@ -17,6 +17,9 @@ binday/
 *.db-wal
 *.env
 
+google*
+.google*
+
 .DS_Store
 .python-version
 secrets.yaml
