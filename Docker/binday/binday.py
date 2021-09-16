@@ -1,133 +1,159 @@
-import urllib.request
-
-import csv
-
 from __future__ import print_function
-import datetime
-import os.path
+from datetime import datetime, timedelta
+import os
+
+# from types import new_class
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
+from google.oauth2 import service_account
+
+import urllib.request
+
+import csv
+
+locationCode = os.environ.get("LOCATION_CODE")
+calId = os.environ.get("CAL_ID")
 
 # If modifying these scopes, delete the file token.json.
-SCOPES = ['https://www.googleapis.com/auth/calendar']
+SCOPES = ["https://www.googleapis.com/auth/calendar"]
+
 
 def check_row(row):
-    if row[0] != 839342:
+    if row[0] != locationCode:
         return False
     return True
 
+
 def get_data(filename, check=True):
-    with open(filename, "rb") as csvfile:
+    with open(filename, "rt") as csvfile:
         datareader = csv.reader(csvfile)
-        yield next(datareader)  # yield the header row
         for row in datareader:
-            if check == False: # Bypass check
+            if check == False:  # Bypass check
                 yield row
             else:
                 if check_row(row):
                     yield row
 
-def google_auth():
-    creds = None
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('data/token.json'):
-        creds = Credentials.from_authorized_user_file('data/token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'data/credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-        # Save the credentials for the next run
-        with open('data/token.json', 'w') as token:
-            token.write(creds.to_json())
-    return build('calendar', 'v3', credentials=creds)
+
+def get_service():
+    """Get a service that communicates to a Google API."""
+
+    print("Authenticating with google")
+    credentials = service_account.Credentials.from_service_account_file(
+        "/data/service.json"
+    )
+    # Build the service object.
+    service = build("calendar", "v3", credentials=credentials)
+
+    print("Authentication complete")
+    return service
+
 
 def create_event(service, dateString, bin):
-        binDate = datetime.strptime(dateString, '%d/%m/%Y')
-        binDateTime = binDate.isoformat()
+    binDate = datetime.strptime(dateString, "%d/%m/%y").strftime("%Y-%m-%d")
 
-        event_result = service.events().insert(calendarId='primary',
+    event_result = (
+        service.events()
+        .insert(
+            calendarId=calId,
             body={
                 "summary": bin,
-                "start": {"dateTime": binDateTime, "timeZone": 'Europe/London'},
-                "end": {"dateTime": binDateTime, "timeZone": 'Europe/London'},
-                'reminders': {'useDefault': False},
-            }
-        ).execute()
+                "start": {"date": binDate, "timeZone": "Europe/London"},
+                "end": {"date": binDate, "timeZone": "Europe/London"},
+                "reminders": {"useDefault": False},
+            },
+        )
+        .execute()
+    )
 
-        print("Event created")
-        print("id: ", event_result['id']) # Add to bin list
-        print("bin colour: ", event_result['summary'])
-        print("Date: ", event_result['start']['dateTime'])
-        return event_result['id']
-
+    return event_result["id"]
 
 
 def main():
     # Setup google tokens.
-    service = google_auth()
+    service = get_service()
 
     # Download latest version of bin day csv
-    urllib.request.urlretrieve("http://opendata.leeds.gov.uk/downloads/bins/dm_jobs.csv", "/data/raw.csv")
+    print("Downloading bin data")
+    urllib.request.urlretrieve(
+        "http://opendata.leeds.gov.uk/downloads/bins/dm_jobs.csv", "/data/raw.csv"
+    )
+    print("Download complete")
 
     # Retrieve and filter bin data from downloaded file
-    downloadedBinDays = []
-    for row in get_data("/data/raw.csv"):
-        # process row
-        downloadedBinDays.append((row[2], row[1]))
+    print("Filtering downloaded data")
+    # downloadedBinDays = []
+    # for row in get_data("/data/raw.csv"):
+    #     # process row
+    #     downloadedBinDays.append((row[2], row[1]))
+    downloadedBinDays = [(binDay[2], binDay[1]) for binDay in get_data("/data/raw.csv")]
+    print("Filtering complete")
 
-    
+    # Bin days from file with past dates deleted.
     # Compare to previously saved data (if exists)
-    if os.path.exists('/data/bin_events.csv'):
-    #     # Open and compare
-    #     with open('/data/bin_events.csv', 'r') as fp:
-    #         s = fp.read()
+    if os.path.exists("/data/bin_events.csv"):
+        print("bin events file found. Comparing file with new events.")
 
-        # Bin days from fil with past dates deleted. They will still be in historic file.
-        existingBinDays = []
-        for binDay in get_data('/data/bin_events.csv', check=False):
-            if datetime.strptime(binDay(0), '%d/%m/%Y') < datetime.now():
-                existingBinDays.append(binDay)
+        # Only include future dates. Past dates will still be in historic file.
+        # for binDay in get_data("/data/bin_events.csv", check=False):
+        #     if datetime.strptime(
+        #         binDay[0], "%d/%m/%y"
+        #     ) > datetime.now() - datetime.timedelta(days=1):
+        #         existingBinDays.append(binDay)
+        existingBinDays = [
+            binDay
+            for binDay in get_data("/data/bin_events.csv", check=False)
+            if datetime.strptime(binDay[0], "%d/%m/%y")
+            > datetime.now() - timedelta(days=1)
+        ]
 
         # New bin days that are not already in file
-        newBinDays = []
-        for binDay in downloadedBinDays:
-            if binDay(0) not in existingBinDays: # Check if date is in file
-                newBinDays.append(binDay)
+        daysToCompare = [
+            (i[0], i[1]) for i in existingBinDays
+        ]  # Lose IDs for comparison
+        newBinDays = [
+            binDay for binDay in downloadedBinDays if binDay not in daysToCompare
+        ]
 
-        sortedBinDays = newBinDays.sort(key=lambda tup: datetime.strptime(tup[0], '%d/%m/%Y'))
+        print("Compare complete")
     else:
+        print("No bin events file found. A new one will be created")
         # all data is new.
-        sortedBinDays = downloadedBinDays.sort(key=lambda tup: datetime.strptime(tup[0], '%d/%m/%Y'))
+        newBinDays = downloadedBinDays
+        existingBinDays = []
+
+    newBinDays = list(set([i for i in newBinDays]))
+    # Use above to get rid of all?
+
+    newBinDays.sort(key=lambda tup: datetime.strptime(tup[0], "%d/%m/%y"))
 
     # Create calendar event for each new bin day
-    createdBinDays=[]
-    for binDay in sortedBinDays: 
-        id = create_event(service, binDay(0), binDay(1))
-        createdBinDays.append((binDay(0), binDay(1), id))
+    createdBinDays = []
+    eventCount = 0
+    print("Creating events")
+    for binDay in newBinDays:
+        id = create_event(service, binDay[0], binDay[1].capitalize() + " bin")
+        createdBinDays.append((binDay[0], binDay[1], id))
+        eventCount += 1
 
-    
+    print(str(eventCount) + " events created.")
+
     # Existing bin days (from file) with new, unique days added in.
     totalBinDays = existingBinDays + createdBinDays
     # Overwrite current file with new dates bin_events.csv
-    with open('/data/bin_events.csv', mode='w') as binEventFile:
-        binEventWriter = csv.writer(binEventFile, delimiter=',', fieldnames = ['Date','Bin','Event_ID'])
+    with open("/data/bin_events.csv", mode="w") as binEventFile:
+        binEventWriter = csv.writer(binEventFile, delimiter=",")
         for row in totalBinDays:
             binEventWriter.writerow(row)
 
-    #Add events to historic file or create new file if doesnt exist 
-    with open('/data/historic_bin_events.csv', mode='a') as binHistoricFile:
-        binHistoricWriter = csv.writer(binHistoricFile, delimiter=',', fieldnames = ['Date','Bin','Event_ID'])
+    # Add events to historic file or create new file if doesnt exist
+    with open("/data/historic_bin_events.csv", mode="a") as binHistoricFile:
+        binHistoricWriter = csv.writer(binHistoricFile, delimiter=",")
         for row in createdBinDays:
             binHistoricWriter.writerow(row)
-            
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

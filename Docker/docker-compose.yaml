@@ -62,5 +62,9 @@ services:
   binday:
     build:
       context: ./binday/
-      volumes:
+    volumes:
         - "/mnt/dietpi_userdata/homeassistant/binday:/data"
+    environment:
+      PYTHONUNBUFFERED: 1
+      LOCATION_CODE: ${LOCATION_CODE}
+      CAL_ID: ${CAL_ID}
