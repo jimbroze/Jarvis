@@ -388,25 +388,13 @@ class FitbitSensor(SensorEntity):
         """Return the name of the sensor."""
         return self._name
 
-# Not working! Old state function added in.
     @property
     def native_value(self) -> str | None:
         """Return the state of the sensor."""
         return self._state
 
-# Not working! Old unit_of function added in.
     @property
     def native_unit_of_measurement(self) -> str | None:
-        """Return the unit of measurement of this entity, if any."""
-        return self._unit_of_measurement
-
-    @property
-    def state(self) -> str | None:
-        """Return the state of the sensor."""
-        return self._state
-
-    @property
-    def unit_of_measurement(self) -> str | None:
         """Return the unit of measurement of this entity, if any."""
         return self._unit_of_measurement
 

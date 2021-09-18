@@ -26,6 +26,6 @@ secrets.yaml
 ip_bans.yaml
 known_devices.yaml
 SERVICE_ACCOUNT.JSON
-home-assistant.log
+home-assistant.log*
 Docker/nginx/config/app.conf
 fitbit.conf
