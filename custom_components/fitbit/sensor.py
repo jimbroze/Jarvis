@@ -146,7 +146,6 @@ def request_oauth_completion(hass: HomeAssistant) -> None:
         submit_caption="I have authorized Fitbit.",
     )
 
-
 def setup_platform(
     hass: HomeAssistant,
     config: ConfigType,
@@ -154,6 +153,20 @@ def setup_platform(
     discovery_info: DiscoveryInfoType | None = None,
 ) -> None:
     """Set up the Fitbit sensor."""
+
+    def refresh_cb(token):
+        """ Called when the OAuth token has been refreshed """
+
+        config_contents = {
+            ATTR_ACCESS_TOKEN: token['access_token'],
+            ATTR_REFRESH_TOKEN: token['refresh_token'],
+            CONF_CLIENT_ID: config_file.get(CONF_CLIENT_ID),
+            CONF_CLIENT_SECRET: config_file.get(CONF_CLIENT_ID),
+            # ATTR_LAST_SAVED_AT: token['expires_at'],
+            ATTR_LAST_SAVED_AT: int(time.time()),
+        }
+        save_json(hass.config.path(FITBIT_CONFIG_FILE), config_contents)
+
     config_path = hass.config.path(FITBIT_CONFIG_FILE)
     if os.path.isfile(config_path):
         config_file: ConfigType = cast(ConfigType, load_json(config_path))
@@ -184,7 +197,7 @@ def setup_platform(
             access_token=access_token,
             refresh_token=refresh_token,
             expires_at=expires_at,
-            refresh_cb=lambda x: None,
+            refresh_cb=refresh_cb,
         )
 
         if int(time.time()) - expires_at > 3600:
@@ -375,13 +388,25 @@ class FitbitSensor(SensorEntity):
         """Return the name of the sensor."""
         return self._name
 
+# Not working! Old state function added in.
     @property
     def native_value(self) -> str | None:
         """Return the state of the sensor."""
         return self._state
 
+# Not working! Old unit_of function added in.
     @property
     def native_unit_of_measurement(self) -> str | None:
+        """Return the unit of measurement of this entity, if any."""
+        return self._unit_of_measurement
+
+    @property
+    def state(self) -> str | None:
+        """Return the state of the sensor."""
+        return self._state
+
+    @property
+    def unit_of_measurement(self) -> str | None:
         """Return the unit of measurement of this entity, if any."""
         return self._unit_of_measurement
 
