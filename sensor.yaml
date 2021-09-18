@@ -1,19 +1,21 @@
 - platform: fitbit
-  clock_format: 24H
+  # clock_format: 24H
+  # unit_system: en_GB
   monitored_resources:
-    - "activities/calories"
-    - "activities/caloriesBMR"
-    - "activities/heart"
+    # - "activities/calories"
+    # - "activities/caloriesBMR"
+    # - "activities/heart"
     - "activities/steps"
-    - "devices/battery"
-    - "sleep/awakeningsCount"
-    - "sleep/efficiency"
-    - "sleep/minutesAfterWakeup"
-    - "sleep/minutesAsleep"
-    - "sleep/minutesAwake"
-    - "sleep/minutesToFallAsleep"
-    - "sleep/startTime"
-    - "sleep/timeInBed"
+    # - "devices/battery"
+    # - "sleep/awakeningsCount"
+    # - "sleep/efficiency"
+    # - "sleep/minutesAfterWakeup"
+    # - "sleep/minutesAsleep"
+    # - "sleep/minutesAwake"
+    # - "sleep/minutesToFallAsleep"
+    # - "sleep/startTime"
+    # - "sleep/timeInBed"
+  # # scan_interval: 30
 
 - platform: systemmonitor
   resources:
@@ -22,3 +24,27 @@
     - type: memory_use_percent
     - type: processor_use
     - type: last_boot
+
+- platform: rest
+  name: Todo List
+  method: GET
+  resource: 'https://api.todoist.com/sync/v8/projects/get_data'
+  params:
+    token: !secret TODOIST
+    project_id: !secret todo_project_id
+  value_template: '{{value_json[''project''][''id'']}}'
+  json_attributes:
+    - items
+  scan_interval: 30
+
+- platform: rest
+  name: Shopping List
+  method: GET
+  resource: 'https://api.todoist.com/sync/v8/projects/get_data'
+  params:
+    token: !secret TODOIST
+    project_id: !secret shopping_project_id
+  value_template: '{{value_json[''project''][''id'']}}'
+  json_attributes:
+    - items
+  scan_interval: 30

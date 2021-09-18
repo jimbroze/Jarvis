@@ -69,6 +69,11 @@ light:
     devices:
       192.168.0.19:
         name: bedroom_colours
+  - platform: group
+    name: Bedroom Lights
+    entities:
+      - light.bedroom_wall_light
+      - light.bedroom_colours
 
 logger:
   default: info
@@ -89,6 +94,13 @@ mqtt:
 
 recorder:
   db_url: !secret recorder_db_url
+
+rest_command:
+  todoist:
+    method: post
+    url: 'https://api.todoist.com/sync/v8/sync'
+    payload: !secret todoist_api_payload
+    content_type: 'application/x-www-form-urlencoded'
 
 spotify:
   client_id: !secret spotify_client
