@@ -68,3 +68,15 @@ services:
       PYTHONUNBUFFERED: 1
       LOCATION_CODE: ${LOCATION_CODE}
       CAL_ID: ${CAL_ID}
+      
+  node-red:
+    image: nodered/node-red:latest
+    environment:
+      - TZ=Europe/London
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./node-red:/data
+    depends_on:
+      - homeassistant
+    restart: unless-stopped
