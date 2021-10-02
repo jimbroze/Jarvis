@@ -69,14 +69,28 @@ services:
       LOCATION_CODE: ${LOCATION_CODE}
       CAL_ID: ${CAL_ID}
       
-  node-red:
-    image: nodered/node-red:latest
-    environment:
-      - TZ=Europe/London
-    ports:
-      - "1880:1880"
-    volumes:
-      - ./node-red:/data
-    depends_on:
-      - homeassistant
-    restart: unless-stopped
+#   node-red:
+#     image: nodered/node-red:latest
+#     environment:
+#       - TZ=Europe/London
+#     ports:
+#       - "1880:1880"
+#     volumes:
+#       - ./node-red:/data
+#     depends_on:
+#       - homeassistant
+#     restart: unless-stopped
+    
+    appdaemon:
+      image: acockburn/appdaemon:latest
+      environment:
+        HA_URL: "http://192.168.0.11:8123"
+        TOKEN: ${HA_APPDAEMON_KEY}
+        DASH_URL: "http://192.168.0.11:5050"
+      ports:
+        - "5050:5050"
+      volumes:
+        - ./appdaemon:/conf
+      depends_on:
+        - homeassistant
+      restart: unless-stopped
