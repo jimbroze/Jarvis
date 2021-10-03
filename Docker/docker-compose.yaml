@@ -94,3 +94,16 @@ services:
       depends_on:
         - homeassistant
       restart: unless-stopped
+      
+    duplicati:
+      image: ghcr.io/linuxserver/duplicati
+      container_name: duplicati
+      environment:
+        - TZ=Europe/London
+      volumes:
+        - /mnt/dietpi_userdata/homeassistant/backup/config:/config
+        - /mnt/dietpi_userdata/homeassistant/backup/backup:/backups
+        - /mnt/dietpi_userdata/homeassistant:/source
+      ports:
+        - 8200:8200
+      restart: unless-stopped
