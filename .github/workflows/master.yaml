@@ -16,7 +16,7 @@ jobs:
       - uses: docker://homeassistant/home-assistant:latest
         with:
           # entrypoint: hass --script check_config -c .
-          entrypoint: python -m homeassistant --script check_config -c .
+          entrypoint: /usr/bin/python -m homeassistant --script check_config -c .
       # - run: docker exec homeassistant python -m homeassistant --script check_config --config .
 
   # test-master-branch:
