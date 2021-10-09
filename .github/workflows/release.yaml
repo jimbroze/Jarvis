@@ -11,24 +11,24 @@ jobs:
     runs-on: ubuntu-latest
     container: homeassistant/home-assistant:latest
     steps:
-#        - uses: actions/checkout@v2
+      - run: hass --script check_config -c .
+#       - uses: actions/checkout@v2
 #       - uses: docker://homeassistant/home-assistant:latest
 #         with:
 #           entrypoint: hass --script check_config -c .
-      - run: hass --script check_config -c .
 
-  deploy:
-    name: Deploy docker containers
-    runs-on: self-hosted
-    needs: [test]
-    steps:
-      - uses: actions/checkout@v2
-      - name: Stop Containers
-        working-directory: Docker
-        run: docker-compose stop
-      - name: Build Images
-        working-directory: Docker
-        run: docker-compose build --pull
-      - name: Start Containers
-        working-directory: Docker
-        run: docker-compose up
+  # deploy:
+  #   name: Deploy docker containers
+  #   runs-on: self-hosted
+  #   needs: [test]
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #     - name: Stop Containers
+  #       working-directory: Docker
+  #       run: docker-compose stop
+  #     - name: Build Images
+  #       working-directory: Docker
+  #       run: docker-compose build --pull
+  #     - name: Start Containers
+  #       working-directory: Docker
+  #       run: docker-compose up

@@ -1,5 +1,5 @@
 # group: !include groups.yaml
-# automation: !include automations.yaml
+automation: !include automations.yaml
 # script: !include scripts.yaml
 # scene: !include scenes.yaml
 sensor: !include sensor.yaml
@@ -14,6 +14,8 @@ alexa:
       exclude_entities:
         - binary_sensor.updater
         - switch.bedroom_wall_light
+        - sensor.mobile_skynet_battery_temperature
+        - sensor.mobile_skynet_battery_temperature
 
 calendar:
   - platform: todoist
@@ -31,6 +33,9 @@ device_tracker:
     new_device_defaults:
       track_new_devices: false
 
+frontend:
+  themes: !include_dir_merge_named themes
+
 google:
   client_id: !secret GOOGLE_ID
   client_secret: !secret GOOGLE_SECRET
@@ -47,6 +52,10 @@ google_assistant:
       expose: false
     switch.bedroom_wall_light:
       expose: false
+    sensor.mobile_skynet_battery_temperature:
+      expose: false
+    sensor.mobile_skynet_battery_temperature:
+      expose: false
 
 http:
   # For extra security set this to only accept connections on localhost if NGINX is on the same machine
@@ -62,18 +71,29 @@ homeassistant:
   external_url: !secret HA_URL
   time_zone: "Europe/London" 
   # time_zone: "Etc/GMT" # For google calendar authentication
+  latitude: 53.80239816707861
+  longitude: -1.5626462288438339
 
 light:
   - platform: flux_led
     automatic_add: true
     devices:
       192.168.0.19:
-        name: bedroom_colours
+        name: Bedroom Light Strip
   - platform: group
     name: Bedroom Lights
     entities:
       - light.bedroom_wall_light
       - light.bedroom_colours
+  # - platform: mqtt
+  #   schema: json
+  #   name: light Strip
+  #   state_topic: "lights/strip"
+  #   command_topic: "lights/strip/set"
+  #   json_attributes_topic: "lights/strip"
+  #   # brightness: true
+  #   # color_mode: true
+  #   # supported_color_modes: ["rgb"]
 
 logger:
   default: info
@@ -91,6 +111,7 @@ mqtt:
   port: 1883
   username: homeassistant
   password: !secret mqtt_pass
+  discovery: true
 
 recorder:
   db_url: !secret recorder_db_url

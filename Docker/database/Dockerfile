@@ -1,2 +1,7 @@
-mysqldump -uuser -ppass --single-transaction --routines --triggers --all-databases > backup_db.sql
-mysqldump --all-databases -uroot -p"$MYSQL_ROOT_PASSWORD"' > /some/path/on/your/host/all-databases.sql
+FROM mariadb
+RUN apt-get update -y && apt-get install -y cron
+COPY crontab /etc/cron.d/crontab
+RUN chmod 0644 /etc/cron.d/crontab &&\
+    crontab /etc/cron.d/crontab
+COPY init.sh /init.sh
+ENTRYPOINT ["bash", "/init.sh"]

@@ -15,6 +15,7 @@ binday/
 *.db
 *.db-shm
 *.db-wal
+*.sqlite
 *.env
 
 google*
@@ -29,3 +30,5 @@ SERVICE_ACCOUNT.JSON
 home-assistant.log*
 Docker/nginx/config/app.conf
 fitbit.conf
+Docker/database/crontab
+Docker/appdaemon/appdaemon.yaml

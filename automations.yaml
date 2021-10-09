@@ -1,0 +1,34 @@
+- id: '1632689360186'
+  alias: Turn on light at night
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: person.jim
+    to: home
+  - platform: numeric_state
+    entity_id: sun.sun
+    below: '8'
+    attribute: elevation
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: '4'
+  condition:
+  - condition: state
+    entity_id: person.jim
+    state: home
+  - condition: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    value_template: "{% if is_state(\"weather.jarvis\", \"sunny\") -%}\n  {{state_attr('sun.sun',\
+      \ 'elevation') | float + 4}}\n{%- else -%}\n  {{state_attr('sun.sun', 'elevation')\
+      \ | float}}\n{%- endif %}"
+    below: '8'
+  action:
+  - service: light.turn_on
+    data:
+      transition: 300
+      brightness_pct: 100
+    target:
+      device_id: 9929ef9114c2392508fbe32ed426f34b
+  mode: single

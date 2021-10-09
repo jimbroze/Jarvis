@@ -16,7 +16,8 @@ services:
 #wget -q -O - https://install.hacs.xyz | bash -
 
   db:
-    image: mariadb
+    build:
+      context: ./database/
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
@@ -25,6 +26,7 @@ services:
       MARIADB_PASSWORD: "${HA_DB_PASSWORD}"
     volumes:
       - "/mnt/dietpi_userdata/homeassistant/db:/var/lib/mysql"
+      - "/mnt/dietpi_userdata/homeassistant/backup/db/:/backup"
     ports:
       - "3306:3306"
 
@@ -81,29 +83,31 @@ services:
 #       - homeassistant
 #     restart: unless-stopped
     
-    appdaemon:
-      image: acockburn/appdaemon:latest
-      environment:
-        HA_URL: "http://192.168.0.11:8123"
-        TOKEN: ${HA_APPDAEMON_KEY}
-        DASH_URL: "http://192.168.0.11:5050"
-      ports:
-        - "5050:5050"
-      volumes:
-        - ./appdaemon:/conf
-      depends_on:
-        - homeassistant
-      restart: unless-stopped
+  appdaemon:
+    image: acockburn/appdaemon:latest
+    environment:
+      HA_URL: "http://192.168.0.11:8123"
+      TOKEN: ${HA_APPDAEMON_KEY}
+      DASH_URL: "http://192.168.0.11:5050"
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./appdaemon:/conf
+    depends_on:
+      - homeassistant
+    restart: unless-stopped
       
-    duplicati:
-      image: ghcr.io/linuxserver/duplicati
-      container_name: duplicati
-      environment:
-        - TZ=Europe/London
-      volumes:
-        - /mnt/dietpi_userdata/homeassistant/backup/config:/config
-        - /mnt/dietpi_userdata/homeassistant/backup/backup:/backups
-        - /mnt/dietpi_userdata/homeassistant:/source
-      ports:
-        - 8200:8200
-      restart: unless-stopped
+  duplicati:
+    image: ghcr.io/linuxserver/duplicati
+    container_name: duplicati
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/London
+    volumes:
+      - /mnt/dietpi_userdata/homeassistant/backup/config:/config
+      - /mnt/dietpi_userdata/backup/:/backups
+      - /mnt/dietpi_userdata/homeassistant:/source
+    ports:
+      - 8200:8200
+    restart: unless-stopped
