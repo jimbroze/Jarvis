@@ -13,11 +13,12 @@ jobs:
     steps:
       # - run: hass --script check_config -c .
       - uses: actions/checkout@v2
-      - uses: docker://homeassistant/home-assistant:latest
+      - run: mv secrets.yaml.tmpl secrets.yaml
+      - uses: kpucynski/action-ha-config-check@v0.1.0
         with:
-          # entrypoint: hass --script check_config -c .
-          entrypoint: /usr/bin/python -m homeassistant --script check_config -c .
-      # - run: docker exec homeassistant python -m homeassistant --script check_config --config .
+          ha_version: "latest"
+        # env:
+        #   HASS_EXTRA_ARGS: "-f -s -i"
 
   # test-master-branch:
   #   runs-on: self-hosted
