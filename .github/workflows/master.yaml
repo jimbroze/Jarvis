@@ -14,10 +14,10 @@ jobs:
       # - run: hass --script check_config -c .
       - uses: actions/checkout@v2
       - uses: docker://homeassistant/home-assistant:latest
-        # with:
-        #   entrypoint: hass --script check_config -c .
-      - run: docker exec homeassistant python -m homeassistant --script check_config --config .
-
+        with:
+          # entrypoint: hass --script check_config -c .
+          entrypoint: homeassistant --script check_config -c .
+      # - run: docker exec homeassistant python -m homeassistant --script check_config --config .
 
   # test-master-branch:
   #   runs-on: self-hosted
