@@ -9,9 +9,13 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    container: homeassistant/home-assistant:latest
+    # container: homeassistant/home-assistant:latest
     steps:
-      - run: hass --script check_config -c .
+      # - run: hass --script check_config -c .
+      - uses: actions/checkout@v2
+      - uses: docker://homeassistant/home-assistant:latest
+        with:
+          entrypoint: hass --script check_config -c .
 
 
   # test-master-branch:
