@@ -9,26 +9,24 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    container: homeassistant/home-assistant:latest
     steps:
-      - run: hass --script check_config -c .
-#       - uses: actions/checkout@v2
-#       - uses: docker://homeassistant/home-assistant:latest
-#         with:
-#           entrypoint: hass --script check_config -c .
+      - uses: actions/checkout@v2
+      - run: mv secrets.yaml.tmpl secrets.yaml && mv SERVICE_ACCOUNT.JSON.tmpl SERVICE_ACCOUNT.JSON
+      - uses: kpucynski/action-ha-config-check@v0.1.0
+        with:
+          ha_version: "latest"
+        # env:
+        #   HASS_EXTRA_ARGS: "-f -s -i"
 
-  # deploy:
-  #   name: Deploy docker containers
-  #   runs-on: self-hosted
-  #   needs: [test]
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #     - name: Stop Containers
-  #       working-directory: Docker
-  #       run: docker-compose stop
-  #     - name: Build Images
-  #       working-directory: Docker
-  #       run: docker-compose build --pull
-  #     - name: Start Containers
-  #       working-directory: Docker
-  #       run: docker-compose up
+  deploy:
+    runs-on: self-hosted
+    needs: [test]
+    defaults:
+      run:
+        working-directory: ../../../../Docker
+    steps:
+      - run: git pull
+        working-directory: ../../../../
+      - run: docker-compose stop
+      - run: docker-compose build --pull
+      - run: docker-compose up -d
