@@ -18,10 +18,10 @@ jobs:
         # env:
         #   HASS_EXTRA_ARGS: "-f -s -i"
 
-  deploy:
-    runs-on: self-hosted
-    steps:
-      - uses: actions/checkout@v2
+#   deploy:
+#     runs-on: self-hosted
+#     steps:
+#       - uses: actions/checkout@v2
   #     - uses: actions/setup-node@v2
   #       with:
   #         node-version: '14'
