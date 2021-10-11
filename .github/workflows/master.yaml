@@ -9,9 +9,7 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    # container: homeassistant/home-assistant:latest
     steps:
-      # - run: hass --script check_config -c .
       - uses: actions/checkout@v2
       - run: mv secrets.yaml.tmpl secrets.yaml && mv SERVICE_ACCOUNT.JSON.tmpl SERVICE_ACCOUNT.JSON
       - uses: kpucynski/action-ha-config-check@v0.1.0
@@ -20,10 +18,10 @@ jobs:
         # env:
         #   HASS_EXTRA_ARGS: "-f -s -i"
 
-  # test-master-branch:
-  #   runs-on: self-hosted
-  #   steps:
-  #     - uses: actions/checkout@v2
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v2
   #     - uses: actions/setup-node@v2
   #       with:
   #         node-version: '14'

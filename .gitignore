@@ -9,6 +9,7 @@ db/
 custom_components/
 www/
 binday/
+actions-runner/
 
 !custom_components/fitbit
 
