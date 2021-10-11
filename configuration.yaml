@@ -133,7 +133,7 @@ tts:
     aws_secret_access_key: !secret aws_secret_access_key
     region_name: 'eu-west-2'
     # text_type: ssml
-    # voice: Joanna
+    voice: Amy
     cache: True
 
 wake_on_lan:
