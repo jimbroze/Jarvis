@@ -18,14 +18,14 @@ jobs:
         # env:
         #   HASS_EXTRA_ARGS: "-f -s -i"
 
-#   deploy:
-#     runs-on: self-hosted
-#     needs: [test]
-#     # if: ${{ github.ref != 'refs/heads/main' }}
-#     defaults:
-#       run:
-#         working-directory: ../../../../
-#     steps:
-#       - run: git pull
-#       - run: docker-compose restart homeassistant
-#         working-directory: ../../../../Docker/
+  deploy:
+    runs-on: self-hosted
+    needs: [test]
+    defaults:
+      run:
+        working-directory: ../../../../
+    steps:
+      - run: git pull origin main
+      - run: git push origin dietpi
+      - run: docker-compose restart homeassistant
+        working-directory: ../../../../Docker/
