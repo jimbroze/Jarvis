@@ -71,8 +71,8 @@ homeassistant:
   external_url: !secret HA_URL
   time_zone: "Europe/London" 
   # time_zone: "Etc/GMT" # For google calendar authentication
-  latitude: 53.80239816707861
-  longitude: -1.5626462288438339
+  latitude: !secret LATITUDE
+  longitude: !secret LONGITUDE
 
 light:
   - platform: flux_led
