@@ -132,7 +132,7 @@ tts:
     aws_access_key_id: !secret aws_access_key_ID
     aws_secret_access_key: !secret aws_secret_access_key
     region_name: 'eu-west-2'
-    text_type: ssml
+    # text_type: ssml
     voice: Joanna
     cache: True
 
