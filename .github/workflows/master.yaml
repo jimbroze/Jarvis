@@ -26,6 +26,12 @@ jobs:
         working-directory: ../../../../
     steps:
       - run: git pull origin main
-      - run: sudo git push origin dietpi
+      - run: |
+          git config --global user.name 'Jimbroze'
+          git config --global user.email 'jimbroze@users.noreply.github.com'
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+          git push origin dietpi
+          
+          
       - run: docker-compose restart homeassistant
         working-directory: ../../../../Docker/
