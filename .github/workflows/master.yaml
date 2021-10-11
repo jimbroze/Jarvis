@@ -21,8 +21,9 @@ jobs:
   deploy:
     runs-on: self-hosted
     needs: [test]
-    steps:
-#       - uses: actions/checkout@v2
-      - run: |
-          git pull
+    defaults:
+      run:
         working-directory: ../../../../
+    steps:
+      - run: git pull
+      - run: docker-compose restart homeassistant
