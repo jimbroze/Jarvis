@@ -26,6 +26,6 @@ jobs:
         working-directory: ../../../../
     steps:
       - run: git pull origin main
-      - run: git push origin dietpi
+      - run: sudo git push origin dietpi
       - run: docker-compose restart homeassistant
         working-directory: ../../../../Docker/
