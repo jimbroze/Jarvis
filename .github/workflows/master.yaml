@@ -18,12 +18,11 @@ jobs:
         # env:
         #   HASS_EXTRA_ARGS: "-f -s -i"
 
-#   deploy:
-#     runs-on: self-hosted
-#     steps:
+  deploy:
+    runs-on: self-hosted
+    needs: [test]
+    steps:
 #       - uses: actions/checkout@v2
-  #     - uses: actions/setup-node@v2
-  #       with:
-  #         node-version: '14'
-  #     - run: npm install -g bats
-  #     - run: bats -v
+      - run: |
+          git pull
+        working-directory: ../../../../
