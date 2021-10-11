@@ -21,7 +21,7 @@ jobs:
   deploy:
     runs-on: self-hosted
     needs: [test]
-    if: ${{ github.ref != 'refs/heads/masters' }}
+    if: ${{ github.ref != 'refs/heads/main' }}
     defaults:
       run:
         working-directory: ../../../../
