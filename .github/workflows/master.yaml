@@ -27,3 +27,4 @@ jobs:
     steps:
       - run: git pull
       - run: docker-compose restart homeassistant
+        working-directory: ../../../../Docker/
