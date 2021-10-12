@@ -54,8 +54,6 @@ google_assistant:
       expose: false
     sensor.mobile_skynet_battery_temperature:
       expose: false
-    sensor.mobile_skynet_battery_temperature:
-      expose: false
 
 http:
   # For extra security set this to only accept connections on localhost if NGINX is on the same machine
@@ -69,7 +67,7 @@ http:
 homeassistant:
   internal_url: http://192.168.0.11:8123
   external_url: !secret HA_URL
-  time_zone: "Europe/London" 
+  time_zone: "Europe/London"
   # time_zone: "Etc/GMT" # For google calendar authentication
   latitude: !secret LATITUDE
   longitude: !secret LONGITUDE
@@ -119,9 +117,9 @@ recorder:
 rest_command:
   todoist:
     method: post
-    url: 'https://api.todoist.com/sync/v8/sync'
+    url: "https://api.todoist.com/sync/v8/sync"
     payload: !secret todoist_api_payload
-    content_type: 'application/x-www-form-urlencoded'
+    content_type: "application/x-www-form-urlencoded"
 
 spotify:
   client_id: !secret spotify_client
@@ -131,7 +129,7 @@ tts:
   - platform: amazon_polly
     aws_access_key_id: !secret aws_access_key_ID
     aws_secret_access_key: !secret aws_secret_access_key
-    region_name: 'eu-west-2'
+    region_name: "eu-west-2"
     # text_type: ssml
     voice: Amy
     engine: neural
@@ -147,8 +145,7 @@ webostv:
     data:
       mac: !secret living_room_tv_mac
   customize:
-    sources:
-      -All 4
+    sources: -All 4
       -Amazon Prime Video
       -BBC iPlayer
       -Disney+
