@@ -19,6 +19,8 @@ env/
 *.db-wal
 *.sqlite
 *.env
+*.mp3
+*.log
 
 google*
 .google*

@@ -3,7 +3,7 @@ import time
 
 from persistqueue import Queue
 
-import globals
+# import globals
 import hassapi as hass
 import mqttapi as mqtt
 
@@ -14,8 +14,7 @@ class Notifications(hass.Hass):
         self.q = Queue("mypath")
 
     def new_notification_mqtt(self, event_name, data, kwargs):
-        """Raise a new notification from an MQTT message"""
-        self.log("{} - {} - {} ".format(event_name, data, kwargs), level="DEBUG")
+        self.log(f"{data['payload']} -- {data['topic']}", level="ERROR")
 
     def new_notification(self, type, message):
         """Raise a new notification with a given 'type' and 'message'"""
@@ -37,9 +36,11 @@ class Notifications(hass.Hass):
 
 class NotificationListener(mqtt.Mqtt):
     def initialize(self):
-        self.notifications = Notifications
+        self.notifications = self.get_app("notifications")
+        # Get config for notifications. For each note type, do following:
         self.listen_event(
             self.notifications.new_notification_mqtt,
             "MQTT_MESSAGE",
-            wildcard="homeassistant/notifications/#",
+            namespace="mqtt",
+            topic="homeassistant/notifications/danger",
         )
