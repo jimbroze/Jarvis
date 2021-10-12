@@ -1,0 +1,18 @@
+# ttssound:
+#   class: Sound
+#   module: sound
+#   global_dependencies: globals
+#   TTSVolume: 0.7
+#   speakers:
+#     - media_player.kitchen_display
+#     - media_player.ensuite_speaker
+#     - media_player.gallery_speaker
+#     - media_player.la_speaker
+#     - media_player.study_speaker
+#     - media_player.bedrooms
+#     - media_player.everywhere
+#     - media_player.upstairs
+#     - media_player.downstairs
+#     - media_player.main_speakers
+#     - media_player.em_speaker
+#     - media_player.za_speaker

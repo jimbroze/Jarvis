@@ -1,3 +1,4 @@
 hello_world:
-  module: hello
-  class: HelloWorld
+  module: notifications
+  class: Notifications
+  class: NotificationListener

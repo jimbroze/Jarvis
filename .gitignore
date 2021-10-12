@@ -10,6 +10,7 @@ custom_components/
 www/
 binday/
 actions-runner/
+env/
 
 !custom_components/fitbit
 

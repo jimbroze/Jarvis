@@ -1,77 +1,45 @@
-import appdaemon.plugins.hass.hassapi as hass
 import random
 import time
-import globals
 
-#
-# App to handle all notifications across Home Assistant
-#
-# 
-# # Apps
+from persistqueue import Queue
+
+import globals
+import hassapi as hass
+import mqttapi as mqtt
+
 
 class Notifications(hass.Hass):
-    notification_targets = []   
     def initialize(self):
-        Notifications.notification_targets = ["dummy"]
-        self.sound = self.get_app("ttssound")
-        for target in self.args["notification_targets"]:
-            Notifications.notification_targets.append(target)
-        
-    def send(self, text, service = "00",titleText = "Notification", threadID = "HA"):
-        """
-        This function will take a 2 number binanry number and send messages to the numbers set as 1
-        first number = Mobile Phones
-        second number = TTS Services as defined in Sound
-        """
+        # Initialize callbacks
+        self.q = Queue("mypath")
 
-        targetService = ""
-        targetFlag = 0
-        notificationQueue = []
-        notificationQueue.clear()
+    def new_notification_mqtt(self, event_name, data, kwargs):
+        """Raise a new notification from an MQTT message"""
+        self.log("{} - {} - {} ".format(event_name, data, kwargs), level="DEBUG")
 
-        self.log(text)
-        # Check first Number - this is for mobile notifcations
-        if service[0] == "0":
-            notificationQueue.clear()  
-        elif service[0] == "6":
-           for target_service in Notifications.notification_targets:
-               notificationQueue.append(target_service)
-        else:
-            target_service = Notifications.notification_targets[int(service[0])]
-            notificationQueue.append(target_service)
-  
+    def new_notification(self, type, message):
+        """Raise a new notification with a given 'type' and 'message'"""
+        urgency = self.check_urgency(type)
+        if urgency == "Immediate":
+            self.notify_urgent(message)
+        if urgency == "Queued":
+            self.notify_not_urgent(message)
 
-        #Send Message
-        if service[0] != "0" or service[0] != 0:
-          for notification in notificationQueue:
-            try:  
-              self.call_service(service = notification, title = titleText, message = text , data = {"push":{"thread-id": threadID}})
-              logMessage = " {} sent to {}". format(text, notification)
-              self.log(logMessage)
+    def check_urgency(self, type):
+        """Check whether nofication can be queued"""
+        return self.urgencies[type]
 
-            except:
-              self.log("Error: Notification Service")
-              self.log(notification)
-              #self.log(sys.exc_info()) 
-        else:
-            self.log("No mobile notification service selected")
+    def notify_later(self):
+        self.q.put("a")
+        self.q.get()
+        self.q.task_done()  # Remove from q
 
-        # Check second Number. Use the number provided to map to the TTS service in Class Sound
-        if service[1] != "0" or service[1] != 0:
-            self.sound = self.get_app("ttssound")
-            # add some letters to the the service to account for more than 9 Speakers
-            if service[1] == "A":
-               TTS_service = 10
-            elif service[1] == "B":
-               TTS_service = 11
-            elif service[1] == "C":
-               TTS_service = 12
-            elif service[1] == "D":
-               TTS_service = 13      
-            else:   
-               TTS_service = int(service[1])
-            
-            #self.log(TTS_service)
-            self.sound.tts(text, len(text)/11, speaker = TTS_service)  
-        else:
-            return
+
+class NotificationListener(mqtt.Mqtt):
+    def initialize(self):
+        self.notifications = Notifications
+        self.listen_event(
+            self.notifications.new_notification_mqtt,
+            "MQTT_MESSAGE",
+            wildcard="homeassistant/notifications/#",
+        )
