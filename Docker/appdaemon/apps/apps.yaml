@@ -1,4 +1,6 @@
-hello_world:
+notifications:
   module: notifications
   class: Notifications
+notifications_listener:
+  module: notifications
   class: NotificationListener
