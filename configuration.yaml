@@ -1,7 +1,7 @@
-# group: !include groups.yaml
+group: !include groups.yaml
 automation: !include automations.yaml
-# script: !include scripts.yaml
-# scene: !include scenes.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
 sensor: !include sensor.yaml
 
 alexa:
@@ -134,6 +134,7 @@ tts:
     region_name: 'eu-west-2'
     # text_type: ssml
     voice: Amy
+    engine: neural
     cache: True
 
 wake_on_lan:
