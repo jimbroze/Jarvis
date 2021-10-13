@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 services:
   homeassistant:
     container_name: homeassistant
@@ -12,10 +12,11 @@ services:
     depends_on:
       - db
 
-#docker exec -it homeassistant bash
-#wget -q -O - https://install.hacs.xyz | bash -
+  #docker exec -it homeassistant bash
+  #wget -q -O - https://install.hacs.xyz | bash -
 
   db:
+    container_name: db
     build:
       context: ./database/
     restart: unless-stopped
@@ -31,6 +32,7 @@ services:
       - "3306:3306"
 
   nginx:
+    container_name: nginx
     build:
       context: ./nginx/
       args:
@@ -51,6 +53,7 @@ services:
     restart: unless-stopped
 
   mosquitto:
+    container_name: mosquitto
     build:
       context: ./mosquitto/
       args:
@@ -58,32 +61,34 @@ services:
     volumes:
       - ./mosquitto:/mosquitto/
     ports:
-      - '1883:1883'
+      - "1883:1883"
     restart: unless-stopped
 
   binday:
+    container_name: binday
     build:
       context: ./binday/
     volumes:
-        - "/mnt/dietpi_userdata/homeassistant/binday:/data"
+      - "/mnt/dietpi_userdata/homeassistant/binday:/data"
     environment:
       PYTHONUNBUFFERED: 1
       LOCATION_CODE: ${LOCATION_CODE}
       CAL_ID: ${CAL_ID}
-      
-#   node-red:
-#     image: nodered/node-red:latest
-#     environment:
-#       - TZ=Europe/London
-#     ports:
-#       - "1880:1880"
-#     volumes:
-#       - ./node-red:/data
-#     depends_on:
-#       - homeassistant
-#     restart: unless-stopped
-    
+
+  #   node-red:
+  #     image: nodered/node-red:latest
+  #     environment:
+  #       - TZ=Europe/London
+  #     ports:
+  #       - "1880:1880"
+  #     volumes:
+  #       - ./node-red:/data
+  #     depends_on:
+  #       - homeassistant
+  #     restart: unless-stopped
+
   appdaemon:
+    container_name: appdaemon
     image: acockburn/appdaemon:latest
     environment:
       HA_URL: "http://192.168.0.11:8123"
@@ -96,7 +101,7 @@ services:
     depends_on:
       - homeassistant
     restart: unless-stopped
-      
+
   duplicati:
     image: ghcr.io/linuxserver/duplicati
     container_name: duplicati

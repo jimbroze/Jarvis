@@ -11,6 +11,7 @@ www/
 binday/
 actions-runner/
 env/
+Docker/appdaemon/logs/
 
 !custom_components/fitbit
 
