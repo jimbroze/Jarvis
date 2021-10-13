@@ -1,3 +1,6 @@
+log:
+  module: log
+  class: Log
 notifications:
   module: notifications
   class: Notifications
