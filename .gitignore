@@ -29,6 +29,7 @@ secrets.yaml
 ip_bans.yaml
 known_devices.yaml
 SERVICE_ACCOUNT.JSON
+webostv.conf
 home-assistant.log*
 Docker/nginx/config/app.conf
 fitbit.conf
