@@ -27,6 +27,7 @@ services:
     volumes:
       - "/mnt/dietpi_userdata/homeassistant/db:/var/lib/mysql"
       - "/mnt/dietpi_userdata/homeassistant/backup/db/:/backup"
+      - "/sys/class/gpio:/sys/class/gpio"
     ports:
       - "3306:3306"
 
