@@ -96,6 +96,7 @@ light:
 logger:
   default: info
   logs:
+    homeassistant.components.python_script.log.py: debug # Debug for AppDaemon logs
     # homeassistant.components.alexa: debug
     homeassistant.components.sensor.fitbit: debug
     homeassistant.components.fitbit: debug

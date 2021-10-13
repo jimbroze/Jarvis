@@ -11,6 +11,7 @@ www/
 binday/
 actions-runner/
 env/
+Docker/appdaemon/logs/
 
 !custom_components/fitbit
 
@@ -19,6 +20,8 @@ env/
 *.db-wal
 *.sqlite
 *.env
+*.mp3
+*.log
 
 google*
 .google*

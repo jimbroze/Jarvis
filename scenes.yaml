@@ -1,0 +1,521 @@
+- id: '1634032502723'
+  name: TV Mode
+  entities:
+    light.living_room_light:
+      supported_color_modes:
+      - brightness
+      friendly_name: Living Room Light
+      supported_features: 32
+      state: 'off'
+    media_player.living_room_tv:
+      source_list:
+      - Netflix
+      volume_level: 0.07
+      is_volume_muted: false
+      source: Netflix
+      sound_output: tv_speaker
+      friendly_name: Living Room TV
+      entity_picture: /api/media_player_proxy/media_player.living_room_tv?token=5420df8addb0e89a9b3380627f61de3966fe1d29a770df341cc9ea11e57052c0&cache=e73425cb6411d5c3
+      supported_features: 20413
+      device_class: tv
+      state: 'on'
+    light.lightstrip:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'OFF'
+      - Static
+      - Blink
+      - Breath
+      - Color Wipe
+      - Color Wipe Inverse
+      - Color Wipe Reverse
+      - Color Wipe Reverse Inverse
+      - Color Wipe Random
+      - Random Color
+      - Single Dynamic
+      - Multi Dynamic
+      - Rainbow
+      - Rainbow Cycle
+      - Scan
+      - Dual Scan
+      - Fade
+      - Theater Chase
+      - Theater Chase Rainbow
+      - Running Lights
+      - Twinkle
+      - Twinkle Random
+      - Twinkle Fade
+      - Twinkle Fade Random
+      - Sparkle
+      - Flash Sparkle
+      - Hyper Sparkle
+      - Strobe
+      - Strobe Rainbow
+      - Multi Strobe
+      - Blink Rainbow
+      - Chase White
+      - Chase Color
+      - Chase Random
+      - Chase Rainbow
+      - Chase Flash
+      - Chase Flash Random
+      - Chase Rainbow White
+      - Chase Blackout
+      - Chase Blackout Rainbow
+      - Color Sweep Random
+      - Running Color
+      - Running Red Blue
+      - Running Random
+      - Larson Scanner
+      - Comet
+      - Fireworks
+      - Fireworks Random
+      - Merry Christmas
+      - Fire Flicker
+      - Fire Flicker (soft)
+      - Fire Flicker (intense)
+      - Circus Combustus
+      - Halloween
+      - Bicolor Chase
+      - Tricolor Chase
+      - ICU
+      - Autoplay
+      - Custom WS
+      - TV
+      - E1.31
+      - Fire 2012
+      - Gradient
+      - Custom 6
+      - Custom 7
+      - Custom 8
+      - Segment OFF
+      supported_color_modes:
+      - color_temp
+      - hs
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 330.118
+      - 100
+      rgb_color:
+      - 255
+      - 0
+      - 126
+      xy_color:
+      - 0.583
+      - 0.245
+      color_temp: 327
+      effect: Rainbow Cycle
+      friendly_name: LightStrip
+      supported_features: 63
+      state: 'on'
+- id: '1634037510123'
+  name: Reading Mode
+  entities:
+    light.bedroom_wall_light:
+      supported_color_modes:
+      - onoff
+      friendly_name: Bedroom Wall Light
+      supported_features: 0
+      state: 'off'
+    light.living_room_light:
+      supported_color_modes:
+      - brightness
+      friendly_name: Living Room Light
+      supported_features: 32
+      state: 'off'
+    light.lightstrip:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'OFF'
+      - Static
+      - Blink
+      - Breath
+      - Color Wipe
+      - Color Wipe Inverse
+      - Color Wipe Reverse
+      - Color Wipe Reverse Inverse
+      - Color Wipe Random
+      - Random Color
+      - Single Dynamic
+      - Multi Dynamic
+      - Rainbow
+      - Rainbow Cycle
+      - Scan
+      - Dual Scan
+      - Fade
+      - Theater Chase
+      - Theater Chase Rainbow
+      - Running Lights
+      - Twinkle
+      - Twinkle Random
+      - Twinkle Fade
+      - Twinkle Fade Random
+      - Sparkle
+      - Flash Sparkle
+      - Hyper Sparkle
+      - Strobe
+      - Strobe Rainbow
+      - Multi Strobe
+      - Blink Rainbow
+      - Chase White
+      - Chase Color
+      - Chase Random
+      - Chase Rainbow
+      - Chase Flash
+      - Chase Flash Random
+      - Chase Rainbow White
+      - Chase Blackout
+      - Chase Blackout Rainbow
+      - Color Sweep Random
+      - Running Color
+      - Running Red Blue
+      - Running Random
+      - Larson Scanner
+      - Comet
+      - Fireworks
+      - Fireworks Random
+      - Merry Christmas
+      - Fire Flicker
+      - Fire Flicker (soft)
+      - Fire Flicker (intense)
+      - Circus Combustus
+      - Halloween
+      - Bicolor Chase
+      - Tricolor Chase
+      - ICU
+      - Autoplay
+      - Custom WS
+      - TV
+      - E1.31
+      - Fire 2012
+      - Gradient
+      - Custom 6
+      - Custom 7
+      - Custom 8
+      - Segment OFF
+      supported_color_modes:
+      - color_temp
+      - hs
+      friendly_name: LightStrip
+      supported_features: 63
+      state: 'off'
+    light.bedroom_light_strip:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - blue_fade
+      - blue_strobe
+      - colorjump
+      - colorloop
+      - colorstrobe
+      - cyan_fade
+      - cyan_strobe
+      - gb_cross_fade
+      - green_fade
+      - green_strobe
+      - purple_fade
+      - purple_strobe
+      - rb_cross_fade
+      - red_fade
+      - red_strobe
+      - rg_cross_fade
+      - white_fade
+      - white_strobe
+      - yellow_fade
+      - yellow_strobe
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      - rgbw
+      color_mode: rgbw
+      brightness: 254
+      hs_color:
+      - 30
+      - 50.394
+      rgb_color:
+      - 255
+      - 190
+      - 126
+      rgbw_color:
+      - 255
+      - 190
+      - 126
+      - 0
+      xy_color:
+      - 0.469
+      - 0.385
+      white_value: 0
+      friendly_name: Bedroom Light Strip
+      supported_features: 151
+      state: 'on'
+- id: '1634037594600'
+  name: Bedtime
+  entities:
+    light.bedroom_wall_light:
+      supported_color_modes:
+      - onoff
+      color_mode: onoff
+      friendly_name: Bedroom Wall Light
+      supported_features: 0
+      state: 'on'
+    light.living_room_light:
+      supported_color_modes:
+      - brightness
+      friendly_name: Living Room Light
+      supported_features: 32
+      state: 'off'
+    light.bedroom_light_strip:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - blue_fade
+      - blue_strobe
+      - colorjump
+      - colorloop
+      - colorstrobe
+      - cyan_fade
+      - cyan_strobe
+      - gb_cross_fade
+      - green_fade
+      - green_strobe
+      - purple_fade
+      - purple_strobe
+      - rb_cross_fade
+      - red_fade
+      - red_strobe
+      - rg_cross_fade
+      - white_fade
+      - white_strobe
+      - yellow_fade
+      - yellow_strobe
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      - rgbw
+      color_mode: rgbw
+      brightness: 254
+      hs_color:
+      - 315.354
+      - 100
+      rgb_color:
+      - 255
+      - 0
+      - 189
+      rgbw_color:
+      - 255
+      - 0
+      - 189
+      - 0
+      xy_color:
+      - 0.48
+      - 0.198
+      white_value: 0
+      friendly_name: Bedroom Light Strip
+      supported_features: 151
+      state: 'on'
+    light.lightstrip:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'OFF'
+      - Static
+      - Blink
+      - Breath
+      - Color Wipe
+      - Color Wipe Inverse
+      - Color Wipe Reverse
+      - Color Wipe Reverse Inverse
+      - Color Wipe Random
+      - Random Color
+      - Single Dynamic
+      - Multi Dynamic
+      - Rainbow
+      - Rainbow Cycle
+      - Scan
+      - Dual Scan
+      - Fade
+      - Theater Chase
+      - Theater Chase Rainbow
+      - Running Lights
+      - Twinkle
+      - Twinkle Random
+      - Twinkle Fade
+      - Twinkle Fade Random
+      - Sparkle
+      - Flash Sparkle
+      - Hyper Sparkle
+      - Strobe
+      - Strobe Rainbow
+      - Multi Strobe
+      - Blink Rainbow
+      - Chase White
+      - Chase Color
+      - Chase Random
+      - Chase Rainbow
+      - Chase Flash
+      - Chase Flash Random
+      - Chase Rainbow White
+      - Chase Blackout
+      - Chase Blackout Rainbow
+      - Color Sweep Random
+      - Running Color
+      - Running Red Blue
+      - Running Random
+      - Larson Scanner
+      - Comet
+      - Fireworks
+      - Fireworks Random
+      - Merry Christmas
+      - Fire Flicker
+      - Fire Flicker (soft)
+      - Fire Flicker (intense)
+      - Circus Combustus
+      - Halloween
+      - Bicolor Chase
+      - Tricolor Chase
+      - ICU
+      - Autoplay
+      - Custom WS
+      - TV
+      - E1.31
+      - Fire 2012
+      - Gradient
+      - Custom 6
+      - Custom 7
+      - Custom 8
+      - Segment OFF
+      supported_color_modes:
+      - color_temp
+      - hs
+      friendly_name: LightStrip
+      supported_features: 63
+      state: 'off'
+- id: '1634042405846'
+  name: Goodnight
+  entities:
+    light.bedroom_wall_light:
+      supported_color_modes:
+      - onoff
+      friendly_name: Bedroom Wall Light
+      supported_features: 0
+      state: 'off'
+    light.living_room_light:
+      supported_color_modes:
+      - brightness
+      friendly_name: Living Room Light
+      supported_features: 32
+      state: 'off'
+    light.lightstrip:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'OFF'
+      - Static
+      - Blink
+      - Breath
+      - Color Wipe
+      - Color Wipe Inverse
+      - Color Wipe Reverse
+      - Color Wipe Reverse Inverse
+      - Color Wipe Random
+      - Random Color
+      - Single Dynamic
+      - Multi Dynamic
+      - Rainbow
+      - Rainbow Cycle
+      - Scan
+      - Dual Scan
+      - Fade
+      - Theater Chase
+      - Theater Chase Rainbow
+      - Running Lights
+      - Twinkle
+      - Twinkle Random
+      - Twinkle Fade
+      - Twinkle Fade Random
+      - Sparkle
+      - Flash Sparkle
+      - Hyper Sparkle
+      - Strobe
+      - Strobe Rainbow
+      - Multi Strobe
+      - Blink Rainbow
+      - Chase White
+      - Chase Color
+      - Chase Random
+      - Chase Rainbow
+      - Chase Flash
+      - Chase Flash Random
+      - Chase Rainbow White
+      - Chase Blackout
+      - Chase Blackout Rainbow
+      - Color Sweep Random
+      - Running Color
+      - Running Red Blue
+      - Running Random
+      - Larson Scanner
+      - Comet
+      - Fireworks
+      - Fireworks Random
+      - Merry Christmas
+      - Fire Flicker
+      - Fire Flicker (soft)
+      - Fire Flicker (intense)
+      - Circus Combustus
+      - Halloween
+      - Bicolor Chase
+      - Tricolor Chase
+      - ICU
+      - Autoplay
+      - Custom WS
+      - TV
+      - E1.31
+      - Fire 2012
+      - Gradient
+      - Custom 6
+      - Custom 7
+      - Custom 8
+      - Segment OFF
+      supported_color_modes:
+      - color_temp
+      - hs
+      friendly_name: LightStrip
+      supported_features: 63
+      state: 'off'
+    light.bedroom_light_strip:
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - blue_fade
+      - blue_strobe
+      - colorjump
+      - colorloop
+      - colorstrobe
+      - cyan_fade
+      - cyan_strobe
+      - gb_cross_fade
+      - green_fade
+      - green_strobe
+      - purple_fade
+      - purple_strobe
+      - rb_cross_fade
+      - red_fade
+      - red_strobe
+      - rg_cross_fade
+      - white_fade
+      - white_strobe
+      - yellow_fade
+      - yellow_strobe
+      - random
+      supported_color_modes:
+      - color_temp
+      - hs
+      - rgbw
+      friendly_name: Bedroom Light Strip
+      supported_features: 151
+      state: 'off'
