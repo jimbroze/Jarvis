@@ -27,7 +27,6 @@ services:
     volumes:
       - "/mnt/dietpi_userdata/homeassistant/db:/var/lib/mysql"
       - "/mnt/dietpi_userdata/homeassistant/backup/db/:/backup"
-      - "/sys/class/gpio:/sys/class/gpio"
     ports:
       - "3306:3306"
 
@@ -94,6 +93,8 @@ services:
       - "5050:5050"
     volumes:
       - ./appdaemon:/conf
+      - "/sys/class/gpio:/sys/class/gpio"
+      # https://github.com/Leapo/Rock64-R64.GPIO needs installing
     depends_on:
       - homeassistant
     restart: unless-stopped
