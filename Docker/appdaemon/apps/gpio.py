@@ -7,7 +7,7 @@ class ServerFan(hass.Hass):
         self.fanPin = 16
         GPIO.setwarnings(True)
         GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(self.fanPin, GPIO.OUT, initial=GPIO.HIGH)
+        GPIO.setup(self.fanPin, GPIO.OUT, initial=GPIO.LOW)
 
         print("")
         print("Module Variables:")
