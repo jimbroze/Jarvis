@@ -97,8 +97,7 @@ services:
 
   appdaemon:
     container_name: appdaemon
-    build:
-      context: ./appdaemon/
+    image: acockburn/appdaemon:latest
     environment:
       HA_URL: "http://192.168.0.11:8123"
       TOKEN: ${HA_APPDAEMON_KEY}
@@ -140,12 +139,12 @@ services:
     container_name: grafana
     image: "grafana/grafana:latest"
     restart: unless-stopped
-    user: "$PUID:$PGID"
+    # user: "$PUID:$PGID"
     depends_on:
       influxdb:
         condition: service_healthy
     volumes:
-      - "${DATADIR}/grafana/data:/var/lib/grafana"
+      - ./grafana/data:/var/lib/grafana"
     ports:
       - 3000:3000
     # uncomment this if you wanta to allow anonymus acces to Grafana for embedding (e.g. in Home Assistant dashboards)
