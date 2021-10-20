@@ -13,11 +13,10 @@ class ServerFan(hass.Hass):
         self.listen_state(self.temp_callback, "sensor.processor_temperature")
 
     def temp_callback(self, entity, attribute, old, new, kwargs):
-        # if old < 55 and new > 55:
-        #     self.change_fan_state(True)
-        # elif old > 45 and new < 45:
-        #     self.change_fan_state(False)
-        self.log(f"{new}", level="ERROR")
+        if float(old) < 55 and float(new) > 55:
+            self.change_fan_state(True)
+        elif float(old) > 45 and float(new) < 45:
+            self.change_fan_state(False)
         self.log(f"{new}", level="DEBUG")
 
     def change_fan_state(self, state=False):
