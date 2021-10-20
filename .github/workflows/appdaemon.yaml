@@ -3,8 +3,9 @@ name: Push - AppDaemon
 on:
   push:
     branches:
-      - 'appdaemon**'
+      - "appdaemon**"
 
+jobs:
   deploy:
     runs-on: self-hosted
     defaults:
