@@ -2,7 +2,6 @@ import R64.GPIO as GPIO
 
 import hassapi as hass
 
-
 class ServerFan(hass.Hass):
     def initialize(self):
         self.fanPin = 16
