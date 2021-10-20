@@ -1,6 +1,6 @@
-log:
-  module: log
-  class: Log
+# log:
+#   module: log
+#   class: Log
 
 # notifications:
 #   module: notifications
