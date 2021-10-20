@@ -106,7 +106,7 @@ services:
       - "5050:5050"
     volumes:
       - ./appdaemon:/conf
-      - "/sys/class/gpio:/sys/class/gpio"
+      - /sys/class/gpio:/sys/class/gpio
       # https://github.com/Leapo/Rock64-R64.GPIO needs installing
     depends_on:
       - homeassistant
