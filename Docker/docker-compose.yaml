@@ -94,10 +94,11 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-    
+
   appdaemon:
     container_name: appdaemon
-    image: acockburn/appdaemon:latest
+    build:
+      context: ./appdaemon/
     environment:
       HA_URL: "http://192.168.0.11:8123"
       TOKEN: ${HA_APPDAEMON_KEY}
@@ -115,7 +116,7 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-      
+
   duplicati:
     image: ghcr.io/linuxserver/duplicati
     container_name: duplicati
@@ -148,11 +149,11 @@ services:
     ports:
       - 3000:3000
     # uncomment this if you wanta to allow anonymus acces to Grafana for embedding (e.g. in Home Assistant dashboards)
-    #environment:
-    #  - GF_AUTH_DISABLE_LOGIN_FORM=true
-    #  - GF_AUTH_ANONYMOUS_ENABLED=true
-    #  - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-    #  - GF_SECURITY_ALLOW_EMBEDDING=true
+    environment:
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
 
   influxdb:
     container_name: influxdb
@@ -168,7 +169,7 @@ services:
     ports:
       - 127.0.0.1:8086:8086
 
-# docker plugin install grafana/loki-docker-driver:arm-v7 --alias loki --grant-all-permissions
+  # docker plugin install grafana/loki-docker-driver:arm-v7 --alias loki --grant-all-permissions
   loki:
     container_name: loki
     image: grafana/loki:2.3.0
