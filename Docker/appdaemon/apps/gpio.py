@@ -10,7 +10,7 @@ class ServerFan(hass.Hass):
         GPIO.setup(self.fanPin, GPIO.OUT, initial=GPIO.LOW)
         # 55 and 45
 
-        self.listen_state(self.change_fan_state, "sensor.processor_temperature")
+        self.listen_state(self.temp_callback, "sensor.processor_temperature")
 
     def temp_callback(self, entity, attribute, old, new, kwargs):
         if old < 55 and new > 55:
