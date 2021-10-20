@@ -7,7 +7,7 @@ class ServerFan(hass.Hass):
         self.fanPin = 16
         GPIO.setwarnings(True)
         GPIO.setmode(GPIO.BOARD)
-        GPIO.setup(self.fanPin, GPIO.OUT, initial=GPIO.LOW)
+        GPIO.setup(self.fanPin, GPIO.OUT, initial=GPIO.HIGH)
 
         self.listen_state(self.temp_callback, "sensor.processor_temperature")
     
