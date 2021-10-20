@@ -11,6 +11,9 @@ class ServerFan(hass.Hass):
         # 55 and 45
 
         self.listen_state(self.temp_callback, "sensor.processor_temperature")
+    
+    def terminate(self):
+        GPIO.cleanup()
 
     def temp_callback(self, entity, attribute, old, new, kwargs):
         if float(old) < 55 and float(new) > 55:
