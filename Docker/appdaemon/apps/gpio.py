@@ -38,6 +38,7 @@ class ServerFan(hass.Hass):
         elif float(old) > 45 and float(new) < 45:
             self.change_fan_state(False)
         self.log(f"{new}", level="DEBUG")
+        GPIO.output(self.fanPin, GPIO.LOW)
 
     def change_fan_state(self, state=False):
         gpioState = {False: GPIO.LOW, True: GPIO.HIGH}[state]
