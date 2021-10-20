@@ -9,6 +9,24 @@ class ServerFan(hass.Hass):
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.fanPin, GPIO.OUT, initial=GPIO.HIGH)
 
+        print("")
+        print("Module Variables:")
+        print("Name           Value")
+        print("----           -----")
+        print("GPIO.ROCK      " + str(GPIO.ROCK))
+        print("GPIO.BOARD     " + str(GPIO.BOARD))
+        print("GPIO.BCM       " + str(GPIO.BCM))
+        print("GPIO.OUT       " + str(GPIO.OUT))
+        print("GPIO.IN        " + str(GPIO.IN))
+        print("GPIO.HIGH      " + str(GPIO.HIGH))
+        print("GPIO.LOW       " + str(GPIO.LOW))
+        print("GPIO.PUD_UP    " + str(GPIO.PUD_UP))
+        print("GPIO.PUD_DOWN  " + str(GPIO.PUD_DOWN))
+        print("GPIO.VERSION   " + str(GPIO.VERSION))
+        print("GPIO.RPI_INFO  " + str(GPIO.RPI_INFO))
+
+        self.log(f"{GPIO.input(self.fanPin)}", level="ERROR") 
+
         self.listen_state(self.temp_callback, "sensor.processor_temperature")
     
     def terminate(self):
