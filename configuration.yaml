@@ -72,6 +72,33 @@ homeassistant:
   latitude: !secret LATITUDE
   longitude: !secret LONGITUDE
 
+influxdb:
+  api_version: 2
+  ssl: false
+  host: influxdb
+  port: 8086
+  token: !secret influx_token
+  organization: !secret influx_token
+  bucket: homeassistant
+  tags:
+    source: HA
+  tags_attributes:
+    - friendly_name
+  default_measurement: units
+  # exclude:
+  #   entities:
+  #     - zone.home
+  #   domains:
+  #     - persistent_notification
+  #     - person
+  include:
+    domains:
+      - sensor
+  #     - binary_sensor
+  #     - sun
+  #   entities:
+  #     - weather.home
+
 light:
   - platform: flux_led
     automatic_add: true
