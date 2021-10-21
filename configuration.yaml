@@ -75,7 +75,7 @@ homeassistant:
 influxdb:
   api_version: 2
   ssl: false
-  host: influxdb
+  host: localhost
   port: 8086
   token: !secret influx_token
   organization: !secret influx_token
