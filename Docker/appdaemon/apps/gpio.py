@@ -8,8 +8,11 @@ class ServerFan(hass.Hass):
         GPIO.setwarnings(True)
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.fanPin, GPIO.OUT, initial=GPIO.LOW)
-
-        self.log(f"{GPIO.input(self.fanPin)}", level="DEBUG") 
+        
+        temp = self.entities.sensor.processor_temperature.state
+        newState = True if float(temp) > 55 else False
+        self.change_fan_state(newState)
+        self.log(f"fan state: {newState}", level="INFO")
 
         self.listen_state(self.temp_callback, "sensor.processor_temperature")
     
