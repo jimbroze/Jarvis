@@ -4,6 +4,7 @@ import hassapi as hass
 class ServerFan(hass.Hass):
     def initialize(self):
         self.fanPin = 5
+        self.fanBoolean = "input_boolean.jarvis_fan"
         GPIO.setwarnings(True)
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.fanPin, GPIO.OUT, initial=GPIO.LOW)
