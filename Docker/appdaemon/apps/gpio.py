@@ -34,5 +34,5 @@ class ServerFan(hass.Hass):
             self.turn_off(self.fanBoolean)
         GPIO.output(self.fanPin, gpioState)
         fanState = GPIO.input(self.fanPin)
-        if fanState != state
-        self.log(f"Fan state is {fanState} but should be {state}", level="ERROR")
+        if fanState != state:
+            self.log(f"Fan state is {fanState} but should be {state}", level="ERROR")
