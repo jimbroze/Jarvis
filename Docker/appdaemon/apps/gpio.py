@@ -3,26 +3,28 @@ import hassapi as hass
 
 class ServerFan(hass.Hass):
     def initialize(self):
-        self.fanPin = 5
-        self.fanBoolean = "input_boolean.jarvis_fan"
+        self.fanPin = self.args["pin"]
+        self.high = self.args["high_temp"]
+        self.low = self.high - self.args["delta"]
+        self.fanBoolean = self.args["fanBoolean"]
+        self.tempSensor = self.args["tempSensor"]
         GPIO.setwarnings(True)
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.fanPin, GPIO.OUT, initial=GPIO.LOW)
         
         temp = self.entities.sensor.processor_temperature.state
-        newState = True if float(temp) > 55 else False
+        newState = True if float(temp) > self.high else False
         self.change_fan_state(newState)
 
-        self.listen_state(self.temp_callback, "sensor.processor_temperature")
+        self.listen_state(self.temp_callback, self.tempSensor)
     
     def terminate(self):
         GPIO.cleanup()
 
     def temp_callback(self, entity, attribute, old, new, kwargs):
-        self.log(f"{new}", level="INFO")
-        if float(old) < 55 and float(new) > 55:
+        if float(old) < self.high and float(new) > self.high:
             self.change_fan_state(True)
-        elif float(old) > 45 and float(new) < 45:
+        elif float(old) > self.low and float(new) < self.low:
             self.change_fan_state(False)
         self.log(f"temp: {new}", level="DEBUG")
 

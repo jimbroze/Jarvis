@@ -48,3 +48,8 @@ sound:
 server_fan:
   module: gpio
   class: ServerFan
+  pin: 5
+  fanBoolean: input_boolean.jarvis_fan
+  tempSensor: sensor.processor_temperature
+  high_temp: 55
+  delta: 10
