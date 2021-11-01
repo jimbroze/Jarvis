@@ -30,7 +30,7 @@ class ServerFan(hass.Hass):
         self.log(f"temp: {new}", level="DEBUG")
 
     def fan_callback(self, entity, attribute, old, new, kwargs):
-        newFanState = {"on": True, "off": False}
+        newFanState = {"on": True, "off": False}[new]
         currentFanState = GPIO.input(self.fanPin)
         self.log(f"fan change: {newFanState}", level="ERROR")
         self.log(f"current state: {currentFanState}", level="ERROR")
