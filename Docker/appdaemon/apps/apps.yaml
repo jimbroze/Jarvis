@@ -5,7 +5,7 @@
 home:
   module: home
   class: Home
-  homeBoolean: someone_home
+  home_boolean: someone_home
   users:
     - person.jim
 
