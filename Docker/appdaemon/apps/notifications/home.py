@@ -18,7 +18,7 @@ class Home(hass.Hass):
         # Defaults to False unless specifically "on"
         return self.get_state(self.homeBoolean) == "on"
 
-    def get_home_boolean(self, entity, attribute, old, new, kwargs):
+    def get_home_boolean(self):
         return self.homeBoolean
 
     def _update_boolean(self, entity, attribute, old, new, kwargs):
