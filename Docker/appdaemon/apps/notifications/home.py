@@ -25,6 +25,7 @@ class Home(hass.Hass):
         for user in self.users:
             if self.get_state(user) == "home":
                 self.turn_on(self.homeBoolean)
+                self.log(f"{user} has entered the building", level="INFO")
                 return
         # Default to off unless someone "home"
         self.turn_off(self.homeBoolean)

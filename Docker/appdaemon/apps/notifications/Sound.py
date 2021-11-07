@@ -5,13 +5,8 @@ import hassapi as hass
 
 class Sound(hass.Hass):
     def initialize(self):
-        self.logger = self.get_user_log("std")
         self.home = self.get_app("home")
         
-
-        # self.logger.info("Testing logger")
-        self.log("Testing logger", level="INFO")
-
         self.speakerSwitch = self.args["speaker_switch"]
         self.speakerDevice = self.args["speaker_device"]
         self.speakerVol = self.args["speaker_vol"]
@@ -29,6 +24,7 @@ class Sound(hass.Hass):
             self.turn_off(self.speakerSwitch)
             return
         self.turn_on(self.speakerSwitch) if kwargs["state"] == "on" else self.turn_off(self.speakerSwitch)
+        self.log(f"Speaker set to {kwargs['state']}", level="INFO")
 
     def speaker_switch_vol(self, entity, attribute, old, new, kwargs):
         if old == "off" and new == "on":
@@ -36,6 +32,7 @@ class Sound(hass.Hass):
         elif old == "on" and new == "off":
             vol = self.deviceVol
         self.call_service("media_player/volume_set", entity_id = self.speaker, volume_level = vol)
+        self.log(f"Speaker vol set to {vol}", level="INFO")
 
     def notify(self, message, notificationType, destination, time):
         """"""
