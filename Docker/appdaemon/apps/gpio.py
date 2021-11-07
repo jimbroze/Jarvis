@@ -12,11 +12,11 @@ class ServerFan(hass.Hass):
         GPIO.setmode(GPIO.BOARD)
         GPIO.setup(self.fanPin, GPIO.OUT, initial=GPIO.LOW)
         
-        temp = self.entities.sensor.processor_temperature.state
-        newState = True if float(temp) > self.high else False
+        newState = True if float(self.get_state(self.tempSensor)) > self.high else False
         self.change_fan_state(newState)
 
         self.listen_state(self.temp_callback, self.tempSensor)
+        self.listen_state(self.fan_callback, self.fanBoolean)
     
     def terminate(self):
         GPIO.cleanup()
@@ -27,6 +27,12 @@ class ServerFan(hass.Hass):
         elif float(old) > self.low and float(new) < self.low:
             self.change_fan_state(False)
         self.log(f"temp: {new}", level="DEBUG")
+
+    def fan_callback(self, entity, attribute, old, new, kwargs):
+        newFanState = {"on": True, "off": False}[new]
+        currentFanState = GPIO.input(self.fanPin)
+        if currentFanState != newFanState:
+            self.change_fan_state(newFanState)
 
     def change_fan_state(self, state=False):
         if state == True:

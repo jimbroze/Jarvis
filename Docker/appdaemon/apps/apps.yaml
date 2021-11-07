@@ -2,6 +2,13 @@
 #   module: log
 #   class: Log
 
+home:
+  module: home
+  class: Home
+  home_boolean: someone_home
+  users:
+    - person.jim
+
 # notifications:
 #   module: notifications
 #   class: Notifications
@@ -44,6 +51,10 @@
 sound:
   module: sound
   class: Sound
+  speaker_switch: switch.living_room_speakers
+  speaker_device: media_player.living_room_speaker
+  speaker_vol: 0.7
+  device_vol: 0.25
 
 server_fan:
   module: gpio
