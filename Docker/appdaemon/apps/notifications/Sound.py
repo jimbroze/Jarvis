@@ -8,8 +8,9 @@ class Sound(hass.Hass):
         self.logger = self.get_user_log("std")
         self.home = self.get_app("home")
         
-        
-        self.logger.info("Testing logger")
+
+        # self.logger.info("Testing logger")
+        self.log("Testing logger", level="INFO")
 
         self.speakerSwitch = self.args["speaker_switch"]
         self.speakerDevice = self.args["speaker_device"]
