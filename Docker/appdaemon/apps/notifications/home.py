@@ -12,7 +12,7 @@ class Home(hass.Hass):
         # self.run_daily(self.speaker_power, "09:30:00", state="on")
 
         for user in self.users:
-            self.listen_state(user, self._update_boolean)
+            self.listen_state(self._update_boolean, user)
 
     def is_home(self, entity="", attribute="", old="", new="", kwargs=""):
         # Defaults to False unless specifically "on"
