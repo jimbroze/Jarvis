@@ -112,7 +112,6 @@ services:
     devices:
       - /dev/gpiochip2:/dev/gpiochip2
       - /dev/gpiochip2:/dev/gpiochip3
-
     depends_on:
       - homeassistant
     restart: unless-stopped

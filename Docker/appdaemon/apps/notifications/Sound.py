@@ -6,6 +6,8 @@ import hassapi as hass
 class Sound(hass.Hass):
     def initialize(self):
         self.home = self.get_app("home")
+        
+        self.log(f"Testing logger", level="INFO")
 
         self.speakerSwitch = self.args["speaker_switch"]
         self.speakerDevice = self.args["speaker_device"]
