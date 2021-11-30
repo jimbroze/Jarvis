@@ -110,15 +110,13 @@ light:
     entities:
       - light.bedroom_wall_light
       - light.bedroom_colours
-  # - platform: mqtt
-  #   schema: json
-  #   name: light Strip
-  #   state_topic: "lights/strip"
-  #   command_topic: "lights/strip/set"
-  #   json_attributes_topic: "lights/strip"
-  #   # brightness: true
-  #   # color_mode: true
-  #   # supported_color_modes: ["rgb"]
+  - platform: group
+    name: All Lights
+    entities:
+      - light.bedroom_wall_light
+      - light.bedroom_light_strip
+      - light.lightstrip
+      - light.living_room_light
 
 logger:
   default: info

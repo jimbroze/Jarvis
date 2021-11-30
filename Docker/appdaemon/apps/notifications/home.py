@@ -12,7 +12,10 @@ class Home(hass.Hass):
         # self.run_daily(self.speaker_power, "09:30:00", state="on")
 
         for user in self.users:
+            self.log(f"{user} logging", level="INFO")
             self.listen_state(self._update_boolean, user)
+        
+        self._update_boolean()
 
     def is_home(self, entity="", attribute="", old="", new="", kwargs=""):
         # Defaults to False unless specifically "on"
@@ -21,11 +24,16 @@ class Home(hass.Hass):
     def get_home_boolean(self):
         return self.homeBoolean
 
-    def _update_boolean(self, entity, attribute, old, new, kwargs):
+    def _update_boolean(self, entity="", attribute="", old="", new="", kwargs=""):
+        oldState = self.get_state(self.homeBoolean)
+        newState = "off"
         for user in self.users:
             if self.get_state(user) == "home":
-                self.turn_on(self.homeBoolean)
-                self.log(f"{user} has entered the building", level="INFO")
-                return
-        # Default to off unless someone "home"
-        self.turn_off(self.homeBoolean)
+                newState = "on"
+                self.log(f"{user} is at home.", level="INFO")
+                break
+        if oldState != newState:
+            self.turn_on(self.homeBoolean) if newState == "on" else self.turn_off(self.homeBoolean)
+            self.log(f"Home boolean set to {newState}.", level="INFO")
+        else:
+            self.log(f"Home boolean already set to {newState}.", level="INFO")

@@ -1,2 +1,2 @@
-35 3 * * * /usr/bin/sh /certbot/certbot_renewal.sh
-*/20 * * * * /usr/bin/sh /duckdns/dns_update.sh
+35 3 * * * /usr/bin/sh /certbot/certbot_renewal.sh > /dev/stdout
+*/20 * * * * /usr/bin/sh /duckdns/dns_update.sh > /dev/stdout
