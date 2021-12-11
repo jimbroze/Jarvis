@@ -64,6 +64,9 @@ lights:
   bedroom_light: light.bedroom_wall_light
   wakeup_time: "06:40:00"
   all_lights: light.all_lights
+light_listener:
+  module: lights
+  class: LightListener
 
 server_fan:
   module: gpio
