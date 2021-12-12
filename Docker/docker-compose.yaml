@@ -148,7 +148,12 @@ services:
     build:
       context: ./monitor/
     volumes:
-      - "${DATADIR}/monitor/:/data/"
+      - "${DATADIR}/monitor/:/config/"
+      - "/etc/localtime:/etc/localtime:ro"
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    command: bash /monitor/monitor.sh -D /config -V -b #Use -tr if other nodes are added
     logging:
       driver: loki
       options:

@@ -17,6 +17,13 @@
     - "sleep/timeInBed"
   # # scan_interval: 30
 
+- platform: mqtt
+  state_topic: 'monitor/living_room/mobile_skynet'
+  value_template: '{{ value_json.confidence }}'
+  unit_of_measurement: '%'
+  name: 'Mobile Skynet Bluetooth'
+
+
 - platform: systemmonitor
   resources:
     - type: disk_use_percent

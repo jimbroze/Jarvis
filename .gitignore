@@ -15,6 +15,7 @@ env/
 appdaemon/logs/
 loki/data
 influxdb/
+monitor/
 
 !custom_components/fitbit
 
