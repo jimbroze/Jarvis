@@ -5,7 +5,7 @@
 home:
   module: home
   class: Home
-  home_boolean: someone_home
+  home_boolean: input_boolean.someone_home
   users:
     - person.jim
 
@@ -53,8 +53,20 @@ sound:
   class: Sound
   speaker_switch: switch.living_room_speakers
   speaker_device: media_player.living_room_speaker
-  speaker_vol: 0.7
+  speaker_vol: 0.9
   device_vol: 0.25
+  on_time: "10:00:00"
+  off_time: "21:00:00"
+
+lights:
+  module: lights
+  class: Lights
+  bedroom_light: light.bedroom_wall_light
+  wakeup_time: "06:40:00"
+  all_lights: light.all_lights
+light_listener:
+  module: lights
+  class: LightListener
 
 server_fan:
   module: gpio

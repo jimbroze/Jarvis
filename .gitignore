@@ -1,17 +1,21 @@
 !.gitignore
 
 *__pycache__/
-image/
-.storage/
-.cloud/
-Docker/certbot/data
+*log/*
+homeassistant/image/
+homeassistant/.storage/
+homeassistant/.cloud/
+certbot/data
 db/
-custom_components/
-www/
+homeassistant/custom_components/
+homeassistant/www/
 binday/
 actions-runner/
 env/
-Docker/appdaemon/logs/
+appdaemon/logs/
+loki/data
+influxdb/
+monitor/
 
 !custom_components/fitbit
 
@@ -23,18 +27,18 @@ Docker/appdaemon/logs/
 *.mp3
 *.log
 
-google*
-.google*
+homeassistant/google*
+homeassistant/.google*
 
-.DS_Store
-.python-version
-secrets.yaml
-ip_bans.yaml
-known_devices.yaml
-SERVICE_ACCOUNT.JSON
-webostv.conf
-home-assistant.log*
-Docker/nginx/config/app.conf
-fitbit.conf
+homeassistant/.DS_Store
+homeassistant/.python-version
+homeassistant/secrets.yaml
+homeassistant/ip_bans.yaml
+homeassistant/known_devices.yaml
+homeassistant/SERVICE_ACCOUNT.JSON
+homeassistant/webostv.conf
+homeassistant/home-assistant.log*
+nginx/config/app.conf
+homeassistant/fitbit.conf
 Docker/database/crontab
 Docker/appdaemon/appdaemon.yaml

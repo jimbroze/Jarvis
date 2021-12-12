@@ -99,3 +99,16 @@
     target:
       entity_id: light.living_room_light
   mode: single
+- id: '1639251416969'
+  alias: Update Lightstrip speed when input is changed
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_number.lightstrip_speed
+  condition: []
+  action:
+  - service: mqtt.publish
+    data:
+      topic: LightStrip/in
+      payload: ?{{ states.input_number.lightstrip_speed.state | int }}
+  mode: single

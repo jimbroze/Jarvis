@@ -1,21 +1,24 @@
 - id: '1634032502723'
-  name: TV Mode
+  name: TV Time
   entities:
     light.living_room_light:
+      restored: true
       supported_color_modes:
       - brightness
-      friendly_name: Living Room Light
       supported_features: 32
-      state: 'off'
+      friendly_name: Living Room Light
+      state: unavailable
     media_player.living_room_tv:
       source_list:
-      - Netflix
-      volume_level: 0.07
+      - Live TV
+      volume_level: 0.09
       is_volume_muted: false
-      source: Netflix
+      media_content_type: channel
+      media_title: ''
+      source: Live TV
       sound_output: tv_speaker
       friendly_name: Living Room TV
-      entity_picture: /api/media_player_proxy/media_player.living_room_tv?token=5420df8addb0e89a9b3380627f61de3966fe1d29a770df341cc9ea11e57052c0&cache=e73425cb6411d5c3
+      entity_picture: /api/media_player_proxy/media_player.living_room_tv?token=07eae1dbc3f8a23b48ead07809895a492419c70b8792d9007eb9a1c02385ea96&cache=1c80feecaedcfe29
       supported_features: 20413
       device_class: tv
       state: 'on'
@@ -93,25 +96,11 @@
       supported_color_modes:
       - color_temp
       - hs
-      color_mode: hs
-      brightness: 255
-      hs_color:
-      - 330.118
-      - 100
-      rgb_color:
-      - 255
-      - 0
-      - 126
-      xy_color:
-      - 0.583
-      - 0.245
-      color_temp: 327
-      effect: Rainbow Cycle
       friendly_name: LightStrip
       supported_features: 63
-      state: 'on'
+      state: 'off'
 - id: '1634037510123'
-  name: Reading Mode
+  name: Reading Time
   entities:
     light.bedroom_wall_light:
       supported_color_modes:
@@ -120,11 +109,12 @@
       supported_features: 0
       state: 'off'
     light.living_room_light:
+      restored: true
       supported_color_modes:
       - brightness
-      friendly_name: Living Room Light
       supported_features: 32
-      state: 'off'
+      friendly_name: Living Room Light
+      state: unavailable
     light.lightstrip:
       min_mireds: 153
       max_mireds: 500
@@ -234,23 +224,30 @@
       color_mode: rgbw
       brightness: 254
       hs_color:
-      - 30
-      - 50.394
+      - 327.273
+      - 77.953
       rgb_color:
       - 255
-      - 190
-      - 126
+      - 56
+      - 164
       rgbw_color:
       - 255
-      - 190
-      - 126
+      - 56
+      - 164
       - 0
       xy_color:
-      - 0.469
-      - 0.385
+      - 0.512
+      - 0.23
       white_value: 0
       friendly_name: Bedroom Light Strip
       supported_features: 151
+      state: 'on'
+    light.reading_light:
+      supported_color_modes:
+      - onoff
+      color_mode: onoff
+      friendly_name: Reading Light
+      supported_features: 0
       state: 'on'
 - id: '1634037594600'
   name: Bedtime

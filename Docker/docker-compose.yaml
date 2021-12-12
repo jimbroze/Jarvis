@@ -1,23 +1,44 @@
 version: "3"
 services:
-  homeassistant:
-    container_name: homeassistant
-    image: "ghcr.io/home-assistant/home-assistant:stable"
+  appdaemon:
+    container_name: appdaemon
+    image: acockburn/appdaemon:latest
+    user: root # Required to write to /sys/class/gpio
+    environment:
+      HA_URL: "http://192.168.0.11:8123"
+      TOKEN: ${HA_APPDAEMON_KEY}
+      DASH_URL: "http://192.168.0.11:5050"
+    ports:
+      - "5050:5050"
     volumes:
-      - /mnt/dietpi_userdata/homeassistant:/config
-      - /etc/localtime:/etc/localtime:ro
-    restart: unless-stopped
-    privileged: true
-    network_mode: host
+      - "${DATADIR}/appdaemon/:/conf/"
+      - "/sys/class/gpio/:/sys/class/gpio/"
+      - "/sys/devices/platform/pinctrl/:/sys/devices/platform/pinctrl/"
+    devices:
+      - "/dev/gpiochip2:/dev/gpiochip2"
+      - "/dev/gpiochip2:/dev/gpiochip3"
     depends_on:
-      - db
+      - homeassistant
+    restart: unless-stopped
     logging:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
 
-  #docker exec -it homeassistant bash
-  #wget -q -O - https://install.hacs.xyz | bash -
+  binday:
+    container_name: binday
+    build:
+      context: ./binday/
+    volumes:
+      - "${DATADIR}/binday/:/data/"
+    environment:
+      PYTHONUNBUFFERED: 1
+      LOCATION_CODE: ${LOCATION_CODE}
+      CAL_ID: ${CAL_ID}
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
 
   db:
     container_name: db
@@ -30,10 +51,125 @@ services:
       MARIADB_USER: "${HA_DB_USER}"
       MARIADB_PASSWORD: "${HA_DB_PASSWORD}"
     volumes:
-      - "/mnt/dietpi_userdata/homeassistant/db:/var/lib/mysql"
-      - "/mnt/dietpi_userdata/homeassistant/backup/db/:/backup"
+      - "${DATADIR}/db/:/var/lib/mysql/"
+      - "${DATADIR}/backup/db/:/backup/"
     ports:
       - "3306:3306"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+
+  duplicati:
+    image: ghcr.io/linuxserver/duplicati
+    container_name: duplicati
+    environment:
+      - PUID=0
+      - PGID=0
+      - TZ=Europe/London
+    volumes:
+      - "${DATADIR}/backup/config/:/config/"
+      - "/mnt/dietpi_userdata/backup/:/backups/"
+      - "${DATADIR}/:/source/"
+    ports:
+      - 8200:8200
+    restart: unless-stopped
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+
+  grafana:
+    container_name: grafana
+    image: "grafana/grafana:latest"
+    restart: unless-stopped
+    # user: "$PUID:$PGID"
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    user: "0"
+    volumes:
+      - "${DATADIR}/grafana/:/var/lib/grafana/"
+    ports:
+      - 3000:3000
+    # uncomment this if you wanta to allow anonymus acces to Grafana for embedding (e.g. in Home Assistant dashboards)
+    environment:
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_SECURITY_ALLOW_EMBEDDING=true
+
+  homeassistant:
+    container_name: homeassistant
+    image: "ghcr.io/home-assistant/home-assistant:stable"
+    volumes:
+      - "${DATADIR}/homeassistant/:/config/"
+      - "/etc/localtime:/etc/localtime:ro"
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    depends_on:
+      - db
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+  #docker exec -it homeassistant bash
+  #wget -q -O - https://install.hacs.xyz | bash -
+
+  influxdb:
+    container_name: influxdb
+    image: "influxdb:latest"
+    restart: unless-stopped
+    volumes:
+      - "${DATADIR}/influxdb/data/:/var/lib/influxdb/"
+    healthcheck:
+      test: ["CMD", "curl", "-sI", "http://127.0.0.1:8086/ping"]
+      interval: 30s
+      timeout: 1s
+      retries: 24
+    ports:
+      - 127.0.0.1:8086:8086
+
+  # docker plugin install grafana/loki-docker-driver:arm-v7 --alias loki --grant-all-permissions
+  loki:
+    container_name: loki
+    image: grafana/loki:2.3.0
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3100:3100"
+    volumes:
+      - "${DATADIR}/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml"
+      - "${DATADIR}/loki/data/:/data/loki/"
+    command: -config.file=/etc/loki/loki-config.yaml
+
+  monitor:
+    container_name: monitor
+    build:
+      context: ./monitor/
+    volumes:
+      - "${DATADIR}/monitor/:/config/"
+      - "/etc/localtime:/etc/localtime:ro"
+    network_mode: host
+    cap_add:
+      - NET_ADMIN
+    command: bash /monitor/monitor.sh -D /config -V -b #Use -tr if other nodes are added
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+
+  mosquitto:
+    container_name: mosquitto
+    build:
+      context: ./mosquitto/
+      args:
+        PASSWORD: ${MOSQUITTO_PASS}
+    volumes:
+      - "${DATADIR}/mosquitto/:/mosquitto/"
+    ports:
+      - "1883:1883"
+    restart: unless-stopped
     logging:
       driver: loki
       options:
@@ -54,132 +190,12 @@ services:
     depends_on:
       - homeassistant
     volumes:
-      - "./nginx/config:/etc/nginx/conf.d"
-      - "./certbot/data:/etc/letsencrypt"
-      # - "./certbot/www:/var/www/certbot"
+      - "${DATADIR}/nginx/config/:/etc/nginx/conf.d/"
+      - "${DATADIR}/certbot/data/:/etc/letsencrypt/"
+      - "${DATADIR}/certbot/www/:/var/www/certbot/"
     network_mode: host
     restart: unless-stopped
     logging:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
-
-  mosquitto:
-    container_name: mosquitto
-    build:
-      context: ./mosquitto/
-      args:
-        PASSWORD: ${MOSQUITTO_PASS}
-    volumes:
-      - ./mosquitto:/mosquitto/
-    ports:
-      - "1883:1883"
-    restart: unless-stopped
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-
-  binday:
-    container_name: binday
-    build:
-      context: ./binday/
-    volumes:
-      - "/mnt/dietpi_userdata/homeassistant/binday:/data"
-    environment:
-      PYTHONUNBUFFERED: 1
-      LOCATION_CODE: ${LOCATION_CODE}
-      CAL_ID: ${CAL_ID}
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-
-  appdaemon:
-    container_name: appdaemon
-    image: acockburn/appdaemon:latest
-    user: root # Required to write to /sys/class/gpio
-    environment:
-      HA_URL: "http://192.168.0.11:8123"
-      TOKEN: ${HA_APPDAEMON_KEY}
-      DASH_URL: "http://192.168.0.11:5050"
-    ports:
-      - "5050:5050"
-    volumes:
-      - ./appdaemon:/conf
-      - /sys/class/gpio:/sys/class/gpio
-      - /sys/devices/platform/pinctrl:/sys/devices/platform/pinctrl
-    devices:
-      - /dev/gpiochip2:/dev/gpiochip2
-      - /dev/gpiochip2:/dev/gpiochip3
-    depends_on:
-      - homeassistant
-    restart: unless-stopped
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-
-  duplicati:
-    image: ghcr.io/linuxserver/duplicati
-    container_name: duplicati
-    environment:
-      - PUID=0
-      - PGID=0
-      - TZ=Europe/London
-    volumes:
-      - /mnt/dietpi_userdata/homeassistant/backup/config:/config
-      - /mnt/dietpi_userdata/backup/:/backups
-      - /mnt/dietpi_userdata/homeassistant:/source
-    ports:
-      - 8200:8200
-    restart: unless-stopped
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-
-  grafana:
-    container_name: grafana
-    image: "grafana/grafana:latest"
-    restart: unless-stopped
-    # user: "$PUID:$PGID"
-    depends_on:
-      influxdb:
-        condition: service_healthy
-    volumes:
-      - ./grafana/data:/var/lib/grafana"
-    ports:
-      - 3000:3000
-    # uncomment this if you wanta to allow anonymus acces to Grafana for embedding (e.g. in Home Assistant dashboards)
-    environment:
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_SECURITY_ALLOW_EMBEDDING=true
-
-  influxdb:
-    container_name: influxdb
-    image: "influxdb:latest"
-    restart: unless-stopped
-    volumes:
-      - ./influxdb/data:/var/lib/influxdb"
-    healthcheck:
-      test: ["CMD", "curl", "-sI", "http://127.0.0.1:8086/ping"]
-      interval: 30s
-      timeout: 1s
-      retries: 24
-    ports:
-      - 127.0.0.1:8086:8086
-
-  # docker plugin install grafana/loki-docker-driver:arm-v7 --alias loki --grant-all-permissions
-  loki:
-    container_name: loki
-    image: grafana/loki:2.3.0
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:3100:3100"
-    volumes:
-      - ./loki/config/loki-config.yaml:/etc/loki/loki-config.yaml
-      - ./loki/data:/data/loki
-    command: -config.file=/etc/loki/loki-config.yaml
