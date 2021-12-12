@@ -143,6 +143,17 @@ services:
       - "${DATADIR}/loki/data/:/data/loki/"
     command: -config.file=/etc/loki/loki-config.yaml
 
+  monitor:
+    container_name: monitor
+    build:
+      context: ./monitor/
+    volumes:
+      - "${DATADIR}/monitor/:/data/"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+
   mosquitto:
     container_name: mosquitto
     build:
