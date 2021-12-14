@@ -35,6 +35,8 @@ services:
       PYTHONUNBUFFERED: 1
       LOCATION_CODE: ${LOCATION_CODE}
       CAL_ID: ${CAL_ID}
+    depends_on:
+      - loki
     logging:
       driver: loki
       options:
@@ -55,6 +57,8 @@ services:
       - "${DATADIR}/backup/db/:/backup/"
     ports:
       - "3306:3306"
+    depends_on:
+      - loki
     logging:
       driver: loki
       options:
@@ -74,6 +78,8 @@ services:
     ports:
       - 8200:8200
     restart: unless-stopped
+    depends_on:
+      - loki
     logging:
       driver: loki
       options:
@@ -85,8 +91,9 @@ services:
     restart: unless-stopped
     # user: "$PUID:$PGID"
     depends_on:
-      influxdb:
-        condition: service_healthy
+      - influxdb
+        # condition: service_healthy
+      - nginx
     user: "0"
     volumes:
       - "${DATADIR}/grafana/:/var/lib/grafana/"
@@ -94,10 +101,13 @@ services:
       - 3000:3000
     # uncomment this if you wanta to allow anonymus acces to Grafana for embedding (e.g. in Home Assistant dashboards)
     environment:
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      # - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_SECURITY_ALLOW_EMBEDDING=true
+      - GF_SERVER_DOMAIN=${SUBDOMAIN}.${DOMAIN}
+      - GF_SERVER_ROOT_URL=https://${SUBDOMAIN}.${DOMAIN}/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
 
   homeassistant:
     container_name: homeassistant
@@ -108,6 +118,8 @@ services:
     restart: unless-stopped
     privileged: true
     network_mode: host
+    extra_hosts:
+      - "${SUBDOMAIN}.${DOMAIN}:192.168.0.11"
     depends_on:
       - db
     logging:
@@ -130,6 +142,12 @@ services:
       retries: 24
     ports:
       - 127.0.0.1:8086:8086
+    depends_on:
+      - loki
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
 
   # docker plugin install grafana/loki-docker-driver:arm-v7 --alias loki --grant-all-permissions
   loki:
@@ -153,7 +171,9 @@ services:
     network_mode: host
     cap_add:
       - NET_ADMIN
-    command: bash /monitor/monitor.sh -D /config -V -b #Use -tr if other nodes are added
+    command: bash /monitor/monitor.sh -D /config -V -b -x #Use -tr if other nodes are added
+    depends_on:
+      - loki
     logging:
       driver: loki
       options:
@@ -170,6 +190,8 @@ services:
     ports:
       - "1883:1883"
     restart: unless-stopped
+    depends_on:
+      - loki
     logging:
       driver: loki
       options:
@@ -189,6 +211,7 @@ services:
       TOKEN: ${DUCKTOKEN}
     depends_on:
       - homeassistant
+      - loki
     volumes:
       - "${DATADIR}/nginx/config/:/etc/nginx/conf.d/"
       - "${DATADIR}/certbot/data/:/etc/letsencrypt/"

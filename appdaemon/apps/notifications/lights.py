@@ -12,6 +12,7 @@ class Lights(hass.Hass):
         
         self.allLights = self.args["all_lights"] # TODO change to auto array of all lights minus specifics
         self.bedroomLights = self.args["bedroom_light"]
+        self.welcomeLight = self.args["welcome_light"]
         wakeupTime = self.args["wakeup_time"]
         # offTime = self.args["off_time"]
         
@@ -30,21 +31,21 @@ class Lights(hass.Hass):
             self.log(f"User not home. Lights turned off.", level="INFO")
             return
 
-        if self.get_state("light.living_room_light") == "off":
+        if self.get_state(self.welcomeLight) == "off":
             if self.get_state("sun.sun", "elevation") < self._elevation_threshold():
-                self.turn_on("light.living_room_light")
-        elif self.get_state("light.living_room_light") == "on":
+                self.turn_on(self.welcomeLight)
+        elif self.get_state(self.welcomeLight) == "on":
             if self.get_state("sun.sun", "elevation") > self._elevation_threshold():
-                self.turn_off("light.living_room_light")
+                self.turn_off(self.welcomeLight)
 
     def _sun_lights(self, entity, attribute, old, new, kwargs):
         if not self.home.is_home():
             return
         elevationThreshold = self._elevation_threshold()
         if old < elevationThreshold and new > elevationThreshold:
-                self.turn_off("light.living_room_light")
+                self.turn_off(self.welcomeLight)
         elif old > elevationThreshold and new < elevationThreshold:
-                self.turn_on("light.living_room_light")
+                self.turn_on(self.welcomeLight)
         
     def wakeup_lights(self, kwargs):
         # Defaults to turning off 

@@ -34,7 +34,8 @@ device_tracker:
       track_new_devices: false
   - platform: mqtt
     devices:
-      mobile_skynet_bluetooth: 'monitor/living_room/mobile_skynet/device_tracker'
+      mobile_skynet_bluetooth: "monitor/living_room/mobile_skynet/device_tracker"
+    source_type: bluetooth
 
 frontend:
   themes: !include_dir_merge_named themes
