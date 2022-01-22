@@ -3,7 +3,7 @@ name: Push - HomeAssistant
 on:
   push:
     branches:
-      - 'main'
+      - "main"
 
 jobs:
   test:
@@ -11,12 +11,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: mv secrets.yaml.tmpl secrets.yaml && mv SERVICE_ACCOUNT.JSON.tmpl SERVICE_ACCOUNT.JSON
+      - run: mv homeassistant/secrets.yaml.tmpl homeassistant/secrets.yaml && mv homeassistant/SERVICE_ACCOUNT.JSON.tmpl homeassistant/SERVICE_ACCOUNT.JSON
       - uses: kpucynski/action-ha-config-check@v0.1.0
         with:
           ha_version: "latest"
-        # env:
-        #   HASS_EXTRA_ARGS: "-f -s -i"
+        env:
+          CONFIG_PATH: ./homeassistant
+          # HASS_EXTRA_ARGS: "-f -s -i"
 
   deploy:
     runs-on: self-hosted
@@ -26,13 +27,12 @@ jobs:
         working-directory: ../../../../
     steps:
       - run: git pull origin main
-#       - run: |
-#           git config --global user.name 'Jimbroze'
-#           git config --global user.email 'jimbroze@users.noreply.github.com'
-#           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
-#           git push origin dietpi
-#           git remote set-url origin https://github.com/jimbroze/Jarvis.git
-          
-          
+      #       - run: |
+      #           git config --global user.name 'Jimbroze'
+      #           git config --global user.email 'jimbroze@users.noreply.github.com'
+      #           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+      #           git push origin dietpi
+      #           git remote set-url origin https://github.com/jimbroze/Jarvis.git
+
       - run: docker-compose restart homeassistant
         working-directory: ../../../../Docker/
