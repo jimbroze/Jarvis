@@ -86,12 +86,14 @@ services:
         loki-url: "http://localhost:3100/loki/api/v1/push"
 
   github_runner:
+    container_name: github_runner
     image: myoung34/github-runner:latest
+    restart: unless-stopped
     environment:
       REPO_URL: https://github.com/jimbroze/Jarvis
       RUNNER_NAME: Jarvis
       ACCESS_TOKEN: ${GITHUB_TOKEN}
-      RUNNER_WORKDIR: ${DATADIR}/actions-runner-docker
+      RUNNER_WORKDIR: ${DATADIR}
       # RUNNER_GROUP: my-group
       RUNNER_SCOPE: "repo"
       LABELS: linux,arm64,DietPi
