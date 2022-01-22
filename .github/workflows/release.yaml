@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - "release-*"
+    # Change to some sort of tag on main branch
+    tags:
+      - release*
 
 jobs:
   test:
@@ -25,7 +28,7 @@ jobs:
       run:
         working-directory: ../../../../Docker
     steps:
-      - run: git pull
+      - run: git pull origin main
         working-directory: ../../../../
       - run: docker-compose stop
       - run: docker-compose build --pull
