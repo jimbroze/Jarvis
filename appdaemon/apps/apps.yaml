@@ -62,6 +62,7 @@ lights:
   module: lights
   class: Lights
   bedroom_light: light.bedroom_wall_light
+  welcome_light: light.lightstrip
   wakeup_time: "06:40:00"
   all_lights: light.all_lights
 light_listener:
