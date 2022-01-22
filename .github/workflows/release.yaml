@@ -34,4 +34,5 @@ jobs:
         working-directory: ../../../../
       - run: docker-compose stop
       - run: docker-compose build --pull
+      - run: docker-compose pull
       - run: docker-compose up -d
