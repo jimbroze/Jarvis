@@ -18,6 +18,8 @@ jobs:
       - uses: kpucynski/action-ha-config-check@v0.1.0
         with:
           ha_version: "latest"
+        env:
+          CONFIG_PATH: ./homeassistant
         # env:
         #   HASS_EXTRA_ARGS: "-f -s -i"
 
