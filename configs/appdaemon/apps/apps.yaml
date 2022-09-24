@@ -1,0 +1,79 @@
+# log:
+#   module: log
+#   class: Log
+
+home:
+  module: home
+  class: Home
+  home_boolean: input_boolean.someone_home
+  users:
+    - person.jim
+
+# notifications:
+#   module: notifications
+#   class: Notifications
+#   types:
+#     Danger:
+#       Urgency: Both
+#       # Notification: Phone (Default)
+#       Banner: True
+#       Response: Required
+#     Warning:
+#       Urgency: Immediate
+#       # Notification: Phone (Default)
+#       Banner: True
+#       Response: Optional
+#     Question:
+#       Urgency: Queued
+#       # Notification: Alexa (Default)
+#       Banner: False
+#       Response: Required
+#     Info (No response):
+#       Urgency: Queued
+#       # Notification: Alexa (Default)
+#       Banner: False
+#       Response: None
+#     Reminder:
+#       Urgency: If_Home
+#       # Notification: Alexa (Default)
+#       Banner: True
+#       Response: None
+#   Default_destinations:
+#     immediate: Phone???
+#     queued: media_player.living_room_speaker
+#     both: Phone???
+#     if_home: media_player.living_room_speaker
+
+# notifications_listener:
+#   module: notifications
+#   class: NotificationListener
+
+# sound:
+#   module: sound
+#   class: Sound
+#   speaker_switch: switch.living_room_speakers
+#   speaker_device: media_player.living_room_speaker
+#   speaker_vol: 0.9
+#   device_vol: 0.25
+#   on_time: "10:00:00"
+#   off_time: "21:00:00"
+
+lights:
+  module: lights
+  class: Lights
+  bedroom_light: light.bedroom_wall_light
+  welcome_light: light.lightstrip
+  wakeup_time: "06:40:00"
+  all_lights: light.all_lights
+light_listener:
+  module: lights
+  class: LightListener
+
+# server_fan:
+#   module: gpio
+#   class: ServerFan
+#   pin: 5
+#   fanBoolean: input_boolean.jarvis_fan
+#   tempSensor: sensor.processor_temperature
+#   high_temp: 55
+#   delta: 10

@@ -1,0 +1,122 @@
+- id: '1632689360186'
+  alias: Turn on light at night
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: person.jim
+    to: home
+  - platform: numeric_state
+    entity_id: sun.sun
+    below: '8'
+    attribute: elevation
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: '4'
+  condition:
+  - condition: state
+    entity_id: person.jim
+    state: home
+  - condition: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    value_template: "{% if is_state(\"weather.jarvis\", \"sunny\") -%}\n  {{state_attr('sun.sun',\
+      \ 'elevation') | float + 4}}\n{%- else -%}\n  {{state_attr('sun.sun', 'elevation')\
+      \ | float}}\n{%- endif %}"
+    below: '8'
+  action:
+  - service: light.turn_on
+    data:
+      transition: 300
+      brightness_pct: 100
+    target:
+      device_id: 9929ef9114c2392508fbe32ed426f34b
+  mode: single
+- id: '1633980276683'
+  alias: Turn off bedroom speakers at night
+  description: ''
+  trigger:
+  - platform: time
+    at: '21:45'
+  condition: []
+  action:
+  - service: switch.turn_off
+    target:
+      device_id: bd2923d9813f4473247009fcbe2e0d74
+  mode: single
+- id: '1634021797071'
+  alias: Change Alexa volume when speakers disconnect
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: switch.living_room_speakers
+    to: 'Off'
+  condition: []
+  action:
+  - service: media_player.volume_set
+    target:
+      entity_id: media_player.living_room_speaker
+    data:
+      volume_level: 0.4
+  mode: single
+- id: '1634022011502'
+  alias: Turn on lights before waking
+  description: ''
+  trigger:
+  - platform: time
+    at: 06:30
+  condition:
+  - condition: state
+    entity_id: person.jim
+    state: Home
+  action:
+  - service: light.turn_on
+    target:
+      entity_id: light.bedroom_light_strip
+    data:
+      brightness_pct: 1
+  - service: light.turn_on
+    target:
+      entity_id: light.bedroom_light_strip
+    data:
+      transition: 300
+      brightness_pct: 100
+  mode: single
+- id: '1634026003029'
+  alias: Turn off lights when bright
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    above: '10'
+  condition:
+  - condition: state
+    entity_id: person.jim
+    state: Home
+  action:
+  - service: light.turn_off
+    target:
+      entity_id: light.living_room_light
+  mode: single
+- id: '1639251416969'
+  alias: Update Lightstrip speed when input is changed
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: input_number.lightstrip_speed
+  condition: []
+  action:
+  - service: mqtt.publish
+    data:
+      topic: LightStrip/in
+      payload: ?{{ states.input_number.lightstrip_speed.state | int }}
+  mode: single
+
+- alias: "Backup Home Assistant every night at 3 AM"
+  trigger:
+    platform: time
+    at: "03:00:00"
+  action:
+    alias: "Create backup now"
+    service: backup.create

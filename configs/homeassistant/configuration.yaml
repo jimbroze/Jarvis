@@ -1,0 +1,256 @@
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+sensor: !include sensor.yaml
+
+alexa:
+  smart_home:
+    locale: en-GB
+    endpoint: "https://api.eu.amazonalexa.com/v3/events"
+    client_id: !secret alexa_client
+    client_secret: !secret alexa_secret
+    filter:
+      # include_entities:
+      #   - light
+      include_domains:
+        - light
+      # exclude_entities:
+        # - light.bedroom_lights
+
+calendar:
+  - platform: todoist
+    token: !secret TODOIST
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+device_tracker:
+  - platform: arris_tg2492lg
+    host: 192.168.0.1
+    password: !secret router_password
+    # interval_seconds: 10
+    # consider_home: 180
+    new_device_defaults:
+      track_new_devices: false
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+# google:
+#   client_id: !secret GOOGLE_ID
+#   client_secret: !secret GOOGLE_SECRET
+# #   track_new_calendar: false
+
+google_assistant:
+  project_id: jarvis-b89c8
+  service_account: !include SERVICE_ACCOUNT.JSON
+  report_state: true
+  entity_config:
+    binary_sensor.updator:
+      expose: false
+    media_player.living_room_speaker:
+      expose: false
+    switch.bedroom_wall_light:
+      expose: false
+    sensor.mobile_skynet_battery_temperature:
+      expose: false
+
+http:
+  # For extra security set this to only accept connections on localhost if NGINX is on the same machine
+  # Uncommenting this will mean that you can only reach Home Assistant using the proxy, not directly via IP from other clients.
+  # server_host: 127.0.0.1
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 127.0.0.1
+    - 192.168.0.11
+    - ::1
+homeassistant:
+  internal_url: http://192.168.0.11:8123
+  external_url: !secret HA_URL
+  time_zone: "Europe/London"
+  # time_zone: "Etc/GMT" # For google calendar authentication
+  latitude: !secret LATITUDE
+  longitude: !secret LONGITUDE
+
+influxdb:
+  api_version: 2
+  ssl: false
+  host: 127.0.0.1
+  port: 8086
+  token: !secret influx_token
+  organization: !secret influx_org
+  bucket: homeassistant
+  tags:
+    source: HA
+  tags_attributes:
+    - friendly_name
+  default_measurement: units
+  # exclude:
+  #   entities:
+  #     - zone.home
+  #   domains:
+  #     - persistent_notification
+  #     - person
+  include:
+    domains:
+      - sensor
+  #     - binary_sensor
+  #     - sun
+  #   entities:
+  #     - weather.home
+
+light:
+  # - platform: flux_led
+  #   automatic_add: true
+  #   devices:
+  #     192.168.0.19:
+  #       name: Bedroom Light Strip
+  - platform: group
+    name: All Lights
+    entities:
+      - light.bedroom_light
+      - light.lightstrip
+      - light.lounge_light
+
+logger:
+  default: info
+  logs:
+    homeassistant.components.python_script.log.py: debug # Debug for AppDaemon logs
+    # homeassistant.components.alexa: debug
+    homeassistant.components.sensor.fitbit: debug
+    homeassistant.components.fitbit: debug
+    custom_components.sensor.fitbit: debug
+    custom_components.fitbit: debug
+
+media_player:
+
+mqtt:
+  # broker: 127.0.0.1
+  # port: 1883
+  # username: homeassistant
+  # password: !secret mqtt_pass
+  # discovery: true
+    device_tracker:
+    - name: "mobile_skynet_bluetooth"
+      state_topic: "monitor/bedroom/mobile_skynet/device_tracker"
+      source_type: bluetooth
+  # light:
+  #   - schema: json
+  #     name: "LightStripd"
+  #     state_topic: "home/lightstrip_ha/state/out"
+  #     command_topic: "home/lightstrip_ha/state/in"
+  #     effect: true
+  #     effect_list:
+  #     ######
+  #       - "Static"
+  #       - "Blink"
+  #       - "Breath"
+  #       - "Color Wipe"
+  #       - "Color Wipe Inverse"
+  #       - "Color Wipe Reverse"
+  #       - "Color Wipe Reverse Inverse"
+  #       - "Color Wipe Random"
+  #       - "Random Color"
+  #       - "Single Dynamic"
+  #       - "Multi Dynamic"
+  #       - "Rainbow"
+  #       - "Rainbow Cycle"
+  #       - "Scan"
+  #       - "Dual Scan"
+  #       - "Fade"
+  #       - "Theater Chase"
+  #       - "Theater Chase Rainbow"
+  #       - "Running Lights"
+  #       - "Twinkle"
+  #       - "Twinkle Random"
+  #       - "Twinkle Fade"
+  #       - "Twinkle Fade Random"
+  #       - "Sparkle"
+  #       - "Flash Sparkle"
+  #       - "Hyper Sparkle"
+  #       - "Strobe"
+  #       - "Strobe Rainbow"
+  #       - "Multi Strobe"
+  #       - "Blink Rainbow"
+  #       - "Chase White"
+  #       - "Chase Color"
+  #       - "Chase Random"
+  #       - "Chase Rainbow"
+  #       - "Chase Flash"
+  #       - "Chase Flash Random"
+  #       - "Chase Rainbow White"
+  #       - "Chase Blackout"
+  #       - "Chase Blackout Rainbow"
+  #       - "Color Sweep Random"
+  #       - "Running Color"
+  #       - "Running Red Blue"
+  #       - "Running Random"
+  #       - "Larson Scanner"
+  #       - "Comet"
+  #       - "Fireworks"
+  #       - "Fireworks Random"
+  #       - "Merry Christmas"
+  #       - "Fire Flicker"
+  #       - "Fire Flicker (soft)"
+  #       - "Fire Flicker (intense)"
+  #       - "Circus Combustus"
+  #       - "Halloween"
+  #       - "Bicolor Chase"
+  #       - "Tricolor Chase"
+  #       - "ICU"
+  #       - "E131"
+  #     brightness: true
+  #     color_temp: true
+  #     rgb: true
+  #     optimistic: false
+  #     qos: 0
+  #     retain: true
+
+recorder:
+  db_url: !secret recorder_db_url
+
+rest_command:
+  todoist:
+    method: post
+    url: "https://api.todoist.com/sync/v8/sync"
+    payload: !secret todoist_api_payload
+    content_type: "application/x-www-form-urlencoded"
+
+# spotify:
+#   client_id: !secret spotify_client
+#   client_secret: !secret spotify_secret
+
+# tts:
+#   - platform: amazon_polly
+#     aws_access_key_id: !secret aws_access_key_ID
+#     aws_secret_access_key: !secret aws_secret_access_key
+#     region_name: "eu-west-2"
+#     # text_type: ssml
+#     voice: Amy
+#     engine: neural
+#     cache: True
+
+wake_on_lan:
+
+# webostv:
+#   host: 192.168.0.15
+#   name: Living Room TV
+#   turn_on_action:
+#     service: wake_on_lan.send_magic_packet
+#     data:
+#       mac: !secret living_room_tv_mac
+#   customize:
+#     sources: -All 4
+#       -Amazon Prime Video
+#       -BBC iPlayer
+#       -Disney+
+#       -HDMI1
+#       -HDMI2
+#       -HDMI3
+#       -ITV Hub
+#       -My5
+#       -NOW TV
+#       -Netflix
+#       -Notifications
+#       -Plex

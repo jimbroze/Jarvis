@@ -1,9 +1,11 @@
+#Ensure 80 and 443 are forwarded on router!
+
 version: "3"
 services:
   appdaemon:
     container_name: appdaemon
     image: acockburn/appdaemon:latest
-    user: root # Required to write to /sys/class/gpio
+    # user: root # Required to write to /sys/class/gpio
     environment:
       HA_URL: "http://192.168.0.11:8123"
       TOKEN: ${HA_APPDAEMON_KEY}
@@ -11,12 +13,12 @@ services:
     ports:
       - "5050:5050"
     volumes:
-      - "${DATADIR}/appdaemon/:/conf/"
-      - "/sys/class/gpio/:/sys/class/gpio/"
-      - "/sys/devices/platform/pinctrl/:/sys/devices/platform/pinctrl/"
-    devices:
-      - "/dev/gpiochip2:/dev/gpiochip2"
-      - "/dev/gpiochip2:/dev/gpiochip3"
+      - "${DATADIR}/configs/appdaemon/:/conf/"
+      # - "/sys/class/gpio/:/sys/class/gpio/"
+      # - "/sys/devices/platform/pinctrl/:/sys/devices/platform/pinctrl/"
+    # devices:
+    #   - "/dev/gpiochip2:/dev/gpiochip2"
+    #   - "/dev/gpiochip2:/dev/gpiochip3"
     depends_on:
       - homeassistant
     restart: unless-stopped
@@ -25,44 +27,22 @@ services:
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
 
-  binday:
-    container_name: binday
-    build:
-      context: ./binday/
-    volumes:
-      - "${DATADIR}/binday/:/data/"
-    environment:
-      PYTHONUNBUFFERED: 1
-      LOCATION_CODE: ${LOCATION_CODE}
-      CAL_ID: ${CAL_ID}
-    depends_on:
-      - loki
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-
-  db:
-    container_name: db
-    build:
-      context: ./database/
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
-      MYSQL_DATABASE: home_assistant
-      MARIADB_USER: "${HA_DB_USER}"
-      MARIADB_PASSWORD: "${HA_DB_PASSWORD}"
-    volumes:
-      - "${DATADIR}/db/:/var/lib/mysql/"
-      - "${DATADIR}/backup/db/:/backup/"
-    ports:
-      - "3306:3306"
-    depends_on:
-      - loki
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+  # binday:
+  #   container_name: binday
+  #   build:
+  #     context: ./binday/
+  #   volumes:
+  #     - "${DATADIR}/binday/:/data/"
+  #   environment:
+  #     PYTHONUNBUFFERED: 1
+  #     LOCATION_CODE: ${LOCATION_CODE}
+  #     CAL_ID: ${CAL_ID}
+  #   depends_on:
+  #     - loki
+  #   logging:
+  #     driver: loki
+  #     options:
+  #       loki-url: "http://localhost:3100/loki/api/v1/push"
 
   duplicati:
     image: ghcr.io/linuxserver/duplicati
@@ -72,14 +52,18 @@ services:
       - PGID=0
       - TZ=Europe/London
     volumes:
-      - "${DATADIR}/backup/config/:/config/"
-      - "/mnt/dietpi_userdata/backup/:/backups/"
-      - "${DATADIR}/:/source/"
+      - "${DATADIR}/configs/duplicati/config:/config"
+      - "${DATADIR}/backup:/backups"
+      - "${DATADIR}/configs/homeassistant/backups:/source/homeassistant"
+      - "${DATADIR}/configs:/source/configs"
+      - "${DATADIR}/Docker:/source/Docker"
+      - "${DATADIR}/storage/db/backups:/source/db"
+      - "${DATADIR}/storage/loki:/source/loki"
+      - "${DATADIR}/storage:/source/storage"
+      - "~/.:/source/home"
     ports:
       - 8200:8200
     restart: unless-stopped
-    depends_on:
-      - loki
     logging:
       driver: loki
       options:
@@ -116,7 +100,7 @@ services:
       - nginx
     user: "0"
     volumes:
-      - "${DATADIR}/grafana/:/var/lib/grafana/"
+      - "${DATADIR}/storage/grafana/:/var/lib/grafana/"
     ports:
       - 3000:3000
     # uncomment this if you wanta to allow anonymus acces to Grafana for embedding (e.g. in Home Assistant dashboards)
@@ -133,7 +117,7 @@ services:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
-      - "${DATADIR}/homeassistant/:/config/"
+      - "${DATADIR}/configs/homeassistant/:/config/"
       - "/etc/localtime:/etc/localtime:ro"
     restart: unless-stopped
     privileged: true
@@ -141,7 +125,14 @@ services:
     extra_hosts:
       - "${SUBDOMAIN}.${DOMAIN}:192.168.0.11"
     depends_on:
-      - db
+      - mariadb
+      - influxdb
+    healthcheck:
+      test: curl --fail -I -X GET http://localhost:8123 || exit 1
+      interval: 30s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
     logging:
       driver: loki
       options:
@@ -151,49 +142,116 @@ services:
 
   influxdb:
     container_name: influxdb
-    image: "influxdb:latest"
+    # image: "influxdb:latest"
+    build:
+      context: ./influxdb/
     restart: unless-stopped
     volumes:
-      - "${DATADIR}/influxdb/data/:/var/lib/influxdb/"
+      - "${DATADIR}/storage/db/influxdb:/var/lib/influxdb2/"
+      - "${DATADIR}/configs/influxdb:/etc/influxdb2/"
+      - "${DATADIR}/storage/db/backups/influxdb:/backup"
+    environment: 
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: ${INFLUXDB_USERNAME}
+      DOCKER_INFLUXDB_INIT_PASSWORD: ${INFLUXDB_PASSWORD}
+      DOCKER_INFLUXDB_INIT_ORG: ${INFLUXDB_ORG}
+      DOCKER_INFLUXDB_INIT_BUCKET: ${INFLUXDB_BUCKET}
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: ${INFLUXDB_TOKEN}
     healthcheck:
       test: ["CMD", "curl", "-sI", "http://127.0.0.1:8086/ping"]
       interval: 30s
       timeout: 1s
       retries: 24
     ports:
-      - 127.0.0.1:8086:8086
-    depends_on:
-      - loki
+      - 8086:8086
     logging:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
 
-  # docker plugin install grafana/loki-docker-driver:arm-v7 --alias loki --grant-all-permissions
+  konnector:
+    container_name: konnector
+    build:
+      context: ./konnector/
+    ports:
+      - "8080:8080"
+    volumes:
+      - "${DATADIR}/configs/konnector/:/data/"
+    environment:
+      PORT: 8080
+      ENDPOINT: https://${SUBDOMAIN}.${DOMAIN}/konnector
+      LOG_LEVEL: debug
+    healthcheck:
+      test: curl --fail -I -X GET http://localhost:8080 || exit 1
+      interval: 30s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+
+  # docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
   loki:
     container_name: loki
-    image: grafana/loki:2.3.0
+    image: grafana/loki:latest
     restart: unless-stopped
     ports:
-      - "127.0.0.1:3100:3100"
+      - "3100:3100"
     volumes:
-      - "${DATADIR}/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml"
-      - "${DATADIR}/loki/data/:/data/loki/"
+      - "${DATADIR}/configs/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml"
+      - "${DATADIR}/storage/loki/:/data/loki/"
     command: -config.file=/etc/loki/loki-config.yaml
+
+  mariadb:
+    container_name: mariadb
+    build:
+      context: ./mariadb/
+    image: mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD}"
+      MYSQL_DATABASE: "${HA_DB_NAME}"
+      MARIADB_USER: "${HA_DB_USER}"
+      MARIADB_PASSWORD: "${HA_DB_PASSWORD}"
+    volumes:
+      - "${DATADIR}/storage/db/mariadb/:/var/lib/mysql/"
+      - "${DATADIR}/storage/db/backups/mariadb:/backup"
+    ports:
+      - "3306:3306"
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
 
   monitor:
     container_name: monitor
-    build:
-      context: ./monitor/
+    # build:
+    #   context: ./monitor/
+    image: mashupmill/presence-monitor:latest
     volumes:
-      - "${DATADIR}/monitor/:/config/"
+      - "${DATADIR}/storage/monitor/:/config/"
       - "/etc/localtime:/etc/localtime:ro"
+    environment:
+      MQTT_ADDRESS: 192.168.0.11
+      MQTT_USER: ${MOSQUITTO_USER}
+      MQTT_PASSWORD: ${MOSQUITTO_PASS}
+      MQTT_PUBLISHER_IDENTITY: bedroom
+      # KNOWN_BEACON_ADDRESSES: |
+      #   FF:FF:FF:FF:FF:FF Red Tag
+      #   FF:FF:FF:FF:FF:FF Green Tag
+      #   FF:FF:FF:FF:FF:FF White Tag
+      #   FF:FF:FF:FF:FF:FF Black Tag
+      KNOWN_STATIC_ADDRESSES: |
+        54:BA:D6:D8:8B:68 mobile_skynet
+      #   FF:FF:FF:FF:FF:FF Beta Phone BT
     network_mode: host
     cap_add:
       - NET_ADMIN
-    command: bash /monitor/monitor.sh -D /config -V -b -x #Use -tr if other nodes are added
-    depends_on:
-      - loki
+    privileged: true
+    # command: bash monitor.sh -h #help
+    command: bash monitor.sh -V -b -x #Use -tr if other nodes are added
     logging:
       driver: loki
       options:
@@ -204,14 +262,13 @@ services:
     build:
       context: ./mosquitto/
       args:
+        USER: ${MOSQUITTO_USER}
         PASSWORD: ${MOSQUITTO_PASS}
     volumes:
-      - "${DATADIR}/mosquitto/:/mosquitto/"
+      - "${DATADIR}/configs/mosquitto/:/mosquitto/"
     ports:
       - "1883:1883"
     restart: unless-stopped
-    depends_on:
-      - loki
     logging:
       driver: loki
       options:
@@ -231,14 +288,26 @@ services:
       TOKEN: ${DUCKTOKEN}
     depends_on:
       - homeassistant
-      - loki
     volumes:
-      - "${DATADIR}/nginx/config/:/etc/nginx/conf.d/"
-      - "${DATADIR}/certbot/data/:/etc/letsencrypt/"
-      - "${DATADIR}/certbot/www/:/var/www/certbot/"
+      - "${DATADIR}/configs/nginx/config/:/etc/nginx/conf.d/"
+      - "${DATADIR}/storage/certbot/data/:/etc/letsencrypt/"
+      - "${DATADIR}/storage/certbot/www/:/var/www/certbot/"
     network_mode: host
     restart: unless-stopped
+    healthcheck:
+      test: curl --fail -I -X GET http://localhost:80 || exit 1
+      interval: 30s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
     logging:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
+
+  # promtail:
+  #   image: grafana/promtail:latest
+  #   volumes:
+  #     - "${DATADIR}/promtail/config/config.yaml:/etc/promtail/config.yml"
+  #     - "${DATADIR}/promtail/log:/var/log"
+  #   command: -config.file=/etc/promtail/config.yml
