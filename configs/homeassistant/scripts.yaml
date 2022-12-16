@@ -1,0 +1,96 @@
+uv_lights_off:
+  alias: UV lights off
+  sequence:
+  - type: turn_off
+    device_id: dd94c0ee8e39291c5d1cdc212cb41284
+    entity_id: switch.tasmota
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 500
+  - type: turn_on
+    device_id: dd94c0ee8e39291c5d1cdc212cb41284
+    entity_id: switch.tasmota
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 0
+      milliseconds: 500
+  - type: turn_off
+    device_id: dd94c0ee8e39291c5d1cdc212cb41284
+    entity_id: switch.tasmota
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 500
+  - type: turn_on
+    device_id: dd94c0ee8e39291c5d1cdc212cb41284
+    entity_id: switch.tasmota
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 0
+      milliseconds: 500
+  - type: turn_off
+    device_id: dd94c0ee8e39291c5d1cdc212cb41284
+    entity_id: switch.tasmota
+    domain: switch
+  mode: single
+uv_lights_off_small:
+  alias: UV lights off (single)
+  sequence:
+  - type: turn_off
+    device_id: dd94c0ee8e39291c5d1cdc212cb41284
+    entity_id: switch.tasmota
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 3
+      milliseconds: 0
+  - type: turn_on
+    device_id: dd94c0ee8e39291c5d1cdc212cb41284
+    entity_id: switch.tasmota
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 3
+      milliseconds: 0
+  - type: turn_off
+    device_id: dd94c0ee8e39291c5d1cdc212cb41284
+    entity_id: switch.tasmota
+    domain: switch
+  mode: single
+uv_lights_on_both:
+  alias: UV lights on (both)
+  sequence:
+  - type: turn_on
+    device_id: dd94c0ee8e39291c5d1cdc212cb41284
+    entity_id: switch.tasmota
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 3
+      milliseconds: 0
+  - type: turn_off
+    device_id: dd94c0ee8e39291c5d1cdc212cb41284
+    entity_id: switch.tasmota
+    domain: switch
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 3
+      milliseconds: 0
+  - type: turn_on
+    device_id: dd94c0ee8e39291c5d1cdc212cb41284
+    entity_id: switch.tasmota
+    domain: switch
+  mode: single

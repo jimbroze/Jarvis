@@ -179,14 +179,17 @@ services:
       - "${DATADIR}/configs/konnector/:/data/"
     environment:
       PORT: 8080
+      MODULE_NAME: konnector.main
       ENDPOINT: https://${SUBDOMAIN}.${DOMAIN}/konnector
-      LOG_LEVEL: debug
+      LOG_LEVEL: info
+      AUTH: false
     healthcheck:
       test: curl --fail -I -X GET http://localhost:8080 || exit 1
       interval: 30s
       retries: 5
       start_period: 30s
       timeout: 5s
+    restart: unless-stopped
     logging:
       driver: loki
       options:
@@ -225,37 +228,37 @@ services:
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
 
-  monitor:
-    container_name: monitor
-    # build:
-    #   context: ./monitor/
-    image: mashupmill/presence-monitor:latest
-    volumes:
-      - "${DATADIR}/storage/monitor/:/config/"
-      - "/etc/localtime:/etc/localtime:ro"
-    environment:
-      MQTT_ADDRESS: 192.168.0.11
-      MQTT_USER: ${MOSQUITTO_USER}
-      MQTT_PASSWORD: ${MOSQUITTO_PASS}
-      MQTT_PUBLISHER_IDENTITY: bedroom
-      # KNOWN_BEACON_ADDRESSES: |
-      #   FF:FF:FF:FF:FF:FF Red Tag
-      #   FF:FF:FF:FF:FF:FF Green Tag
-      #   FF:FF:FF:FF:FF:FF White Tag
-      #   FF:FF:FF:FF:FF:FF Black Tag
-      KNOWN_STATIC_ADDRESSES: |
-        54:BA:D6:D8:8B:68 mobile_skynet
-      #   FF:FF:FF:FF:FF:FF Beta Phone BT
-    network_mode: host
-    cap_add:
-      - NET_ADMIN
-    privileged: true
-    # command: bash monitor.sh -h #help
-    command: bash monitor.sh -V -b -x #Use -tr if other nodes are added
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+  # monitor:
+  #   container_name: monitor
+  #   # build:
+  #   #   context: ./monitor/
+  #   image: mashupmill/presence-monitor:latest
+  #   volumes:
+  #     - "${DATADIR}/storage/monitor/:/config/"
+  #     - "/etc/localtime:/etc/localtime:ro"
+  #   environment:
+  #     MQTT_ADDRESS: 192.168.0.11
+  #     MQTT_USER: ${MOSQUITTO_USER}
+  #     MQTT_PASSWORD: ${MOSQUITTO_PASS}
+  #     MQTT_PUBLISHER_IDENTITY: bedroom
+  #     # KNOWN_BEACON_ADDRESSES: |
+  #     #   FF:FF:FF:FF:FF:FF Red Tag
+  #     #   FF:FF:FF:FF:FF:FF Green Tag
+  #     #   FF:FF:FF:FF:FF:FF White Tag
+  #     #   FF:FF:FF:FF:FF:FF Black Tag
+  #     KNOWN_STATIC_ADDRESSES: |
+  #       54:BA:D6:D8:8B:68 mobile_skynet
+  #     #   FF:FF:FF:FF:FF:FF Beta Phone BT
+  #   network_mode: host
+  #   cap_add:
+  #     - NET_ADMIN
+  #   privileged: true
+  #   # command: bash monitor.sh -h #help
+  #   command: bash monitor.sh -V -b -x #Use -tr if other nodes are added
+  #   logging:
+  #     driver: loki
+  #     options:
+  #       loki-url: "http://localhost:3100/loki/api/v1/push"
 
   mosquitto:
     container_name: mosquitto
@@ -305,9 +308,102 @@ services:
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
 
+  organizr:
+    container_name: organizr
+    image: organizr/organizr
+    restart: always
+    environment:
+      PUID: 1000
+      PGID: 1000
+      fpm: false
+    volumes:
+      - ${DATADIR}/configs/organizr:/config
+    ports:
+      - 8980:80
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+
   # promtail:
   #   image: grafana/promtail:latest
   #   volumes:
   #     - "${DATADIR}/promtail/config/config.yaml:/etc/promtail/config.yml"
   #     - "${DATADIR}/promtail/log:/var/log"
   #   command: -config.file=/etc/promtail/config.yml
+
+            # "integrations": ["homeAssistant", "bluetoothLowEnergy", "bluetoothClassic"]
+  roomassistant:
+    container_name: roomassistant
+    image: mkerix/room-assistant
+    network_mode: host
+    volumes:
+      - /var/run/dbus:/var/run/dbus
+    environment:
+      RA_GLOBAL_INSTANCE_NAME: bedroom
+      RA_HOME_ASSISTANT_MQTT_URL: mqtt://localhost:1883
+      RA_HOME_ASSISTANT_MQTT_USERNAME: ${MOSQUITTO_USER}
+      RA_HOME_ASSISTANT_MQTT_PASSWORD: ${MOSQUITTO_PASS}
+      NODE_CONFIG: >
+        {
+          "global": {
+            "integrations": ["homeAssistant", "bluetoothLowEnergy"]
+          },
+          "cluster": {
+            "port": 6425,
+            "peerAddresses": ["192.168.0.13:6425"]
+          },
+          "bluetoothLowEnergy": {
+            "processIBeacon": true,
+            "allowlist": ["54BAD6D89218", ".*-100-.*"],
+            "allowlistRegex": true,
+            "tagOverrides": {
+              "fed1eea098904b84bb0b5cf59da4c0aa-100-1": {
+                "name": "Mobile SKYNET"
+              }
+            }
+          }
+        }
+    restart: unless-stopped
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+
+  vscode:
+    image: lscr.io/linuxserver/code-server:latest
+    container_name: vscode
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/London
+      - PASSWORD=${VSCODE_PASSWORD} #optional
+      # - HASHED_PASSWORD= #optional
+      # - SUDO_PASSWORD=password #optional
+      # - SUDO_PASSWORD_HASH= #optional
+      # - PROXY_DOMAIN=code-server.my.domain #optional
+      - DEFAULT_WORKSPACE=/data #optional
+    volumes:
+      - ${DATADIR}/configs/vscode:/config
+      - ${DATADIR}:/data
+    ports:
+      - 8443:8443
+    restart: unless-stopped
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+
+
+    # container_name: vscode
+    # image: codercom/code-server
+    # volumes:
+    #   - "${DATADIR}:/home/coder/project"
+    #   # <vs code config> should point to a local dir where vs code stores its data.
+    #   - ${DATADIR}/storage/vscode:/home/coder/.local/share/code-server
+    # ports:
+    #   - "8443:8080"
+    # command: code-server --auth password --disable-telemetry /home/coder/project
+    # environment:
+    #   PASSWORD: "${VSCODE_PASSWORD}"
+    # restart: unless-stopped

@@ -17,13 +17,6 @@
     - "sleep/timeInBed"
   # # scan_interval: 30
 
-- platform: mqtt
-  state_topic: 'monitor/living_room/mobile_skynet'
-  value_template: '{{ value_json.confidence }}'
-  unit_of_measurement: '%'
-  name: 'Mobile Skynet Bluetooth'
-
-
 - platform: systemmonitor
   resources:
     - type: disk_use_percent
@@ -38,8 +31,8 @@
   method: GET
   resource: 'https://api.todoist.com/sync/v8/projects/get_data'
   params:
-    token: !secret TODOIST
-    project_id: !secret todo_project_id
+    token: !secret TODOIST_TOKEN
+    project_id: !secret todoist_next_actions_id
   value_template: '{{value_json[''project''][''id'']}}'
   json_attributes:
     - items
@@ -50,9 +43,22 @@
   method: GET
   resource: 'https://api.todoist.com/sync/v8/projects/get_data'
   params:
-    token: !secret TODOIST
-    project_id: !secret shopping_project_id
+    token: !secret TODOIST_TOKEN
+    project_id: !secret todoist_shopping_id
   value_template: '{{value_json[''project''][''id'']}}'
   json_attributes:
     - items
   scan_interval: 30
+
+- platform: rest
+  name: Clickup Webhook
+  resource: 'https://api.clickup.com/api/v2/team/2193273/webhook'
+  method: GET
+  headers:
+    Authorization: !secret CLICKUP_TOKEN
+  value_template: "{{ value_json['webhooks'][0]['health']['status'] }}"
+  json_attributes_path: "$.webhooks.[0].health"
+  json_attributes:
+    - status
+    - fail_count
+    - date_suspended

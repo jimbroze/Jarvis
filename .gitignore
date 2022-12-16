@@ -9,6 +9,7 @@ configs/homeassistant/custom_components/
 configs/homeassistant/www/
 configs/homeassistant/backups/
 configs/influxdb/
+configs/vscode
 
 configs/homeassistant/google*
 configs/homeassistant/.google*

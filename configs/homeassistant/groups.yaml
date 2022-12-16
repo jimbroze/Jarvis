@@ -1,0 +1,4 @@
+  all_lights:
+    name: "All Lights"
+  inside_lights:
+    name: "Inside Lights"

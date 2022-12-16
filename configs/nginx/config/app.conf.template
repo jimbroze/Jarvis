@@ -3,6 +3,22 @@ map $http_upgrade $connection_upgrade {
     ''      close;
 }
 
+upstream homeassistant {
+  server localhost:8123;
+}
+upstream organizr {
+  server localhost:8980;
+}
+upstream grafana {
+  server localhost:3000;
+}
+upstream konnector {
+  server localhost:8080;
+}
+upstream vscode {
+  server localhost:8443;
+}
+
 server {
     listen [::]:80 ipv6only=off;
     server_name ${SUBDOMAIN}.${DOMAIN};
@@ -33,7 +49,7 @@ server {
     proxy_buffering off;
 
     location / {
-        proxy_pass http://localhost:8123;
+        proxy_pass http://homeassistant;
         proxy_set_header Host $host;
         proxy_redirect http:// https://;
         proxy_http_version 1.1;
@@ -42,21 +58,29 @@ server {
         proxy_set_header Connection $connection_upgrade;
     }
 
+    location /home/ {
+        proxy_pass http://organizr;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $http_connection;
+        rewrite /home(.*) $1 break;
+    }
+
     location /grafana/ {
-        proxy_pass http://localhost:3000;
+            proxy_set_header Host $http_host;
+            proxy_pass http://grafana;
     }
     # Proxy Grafana Live WebSocket connections.
-    location /grafana/api/live {
-        rewrite  ^/grafana/(.*)  /$1 break;
+    location /grafana/api/live/ {
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;
         proxy_set_header Host $http_host;
-        proxy_pass http://localhost:3000/;
+        proxy_pass http://grafana;
     }
 
     location /konnector/ {
-        proxy_pass http://localhost:8080;
+        proxy_pass http://konnector;
         rewrite ^/konnector/(.*) /$1  break;
         proxy_redirect off;
         proxy_buffering off;
@@ -65,5 +89,27 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Prefix /;
+    }
+
+    #location /vscode/ {
+    #    proxy_pass http://vscode;
+    #    rewrite ^/vscode/(.*) /$1  break;
+    #    proxy_redirect off;
+    #    proxy_buffering off;
+    #    proxy_set_header Host $http_host;
+    #    proxy_set_header X-Real-IP $remote_addr;
+    #    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    #    proxy_set_header X-Forwarded-Proto $scheme;
+    #    proxy_set_header X-Forwarded-Prefix /;
+    #}
+
+    location /vscode/ {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+        proxy_pass http://vscode;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        rewrite /vscode(.*) $1 break;
     }
 }

@@ -20,9 +20,9 @@
   - condition: numeric_state
     entity_id: sun.sun
     attribute: elevation
-    value_template: "{% if is_state(\"weather.jarvis\", \"sunny\") -%}\n  {{state_attr('sun.sun',\
-      \ 'elevation') | float + 4}}\n{%- else -%}\n  {{state_attr('sun.sun', 'elevation')\
-      \ | float}}\n{%- endif %}"
+    value_template: "{% if is_state(\"weather.jarvis\", \"sunny\") -%}\n  {{state_attr('sun.sun',
+      'elevation') | float + 4}}\n{%- else -%}\n  {{state_attr('sun.sun', 'elevation')
+      | float}}\n{%- endif %}"
     below: '8'
   action:
   - service: light.turn_on
@@ -112,11 +112,165 @@
       topic: LightStrip/in
       payload: ?{{ states.input_number.lightstrip_speed.state | int }}
   mode: single
-
-- alias: "Backup Home Assistant every night at 3 AM"
+- alias: Backup Home Assistant every night at 3 AM
   trigger:
     platform: time
-    at: "03:00:00"
+    at: 03:00:00
   action:
-    alias: "Create backup now"
+    alias: Create backup now
     service: backup.create
+  id: 00cdc3d4476d4facb65e619acc7eb01f
+- id: '1664628058692'
+  alias: Toggle bedroom light
+  description: ''
+  trigger:
+  - platform: device
+    domain: tasmota
+    device_id: f565f4b376db10ab416fca6d541d1aec
+    type: button_short_press
+    subtype: button_1
+    discovery_id: 40F520FBA0A4_button_1_SINGLE
+  condition: []
+  action:
+  - type: toggle
+    device_id: e48a62169a27e12cd5ee902c94e6ca36
+    entity_id: light.bedroom_light
+    domain: light
+  mode: single
+- id: '1664628593812'
+  alias: Start bedtime on double button press
+  description: ''
+  trigger:
+  - platform: device
+    domain: tasmota
+    device_id: f565f4b376db10ab416fca6d541d1aec
+    type: button_double_press
+    subtype: button_1
+    discovery_id: 40F520FBA0A4_button_1_DOUBLE
+  condition: []
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.bedroom_light_normal
+    metadata: {}
+  mode: single
+- id: '1664635933647'
+  alias: Turn on TV
+  description: ''
+  trigger:
+  - platform: device
+    device_id: ead1a929cfe977ccb9cac2aa51d5257b
+    domain: webostv
+    type: webostv.turn_on
+  condition: []
+  action:
+  - service: wake_on_lan.send_magic_packet
+    data:
+      mac: B4:E6:2A:DE:42:F8
+  mode: single
+- id: '1665137072761'
+  alias: Clickup webhook notification
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.clickup_webhook
+    from: active
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.clickup_webhook
+      attribute: status
+      state: active
+  action:
+  - service: notify.persistent_notification
+    data:
+      message: "Status: {{ state_attr('sensor.clickup_webhook', 'status') }} \nFail
+        count: {{ state_attr('sensor.clickup_webhook', 'fail_count') }} \nDate suspended:
+        {{ state_attr('sensor.clickup_webhook', 'date_suspended') }}"
+      title: Clickup webhook
+  mode: single
+- id: '1665140075602'
+  alias: Bedroom light triple press
+  description: ''
+  trigger:
+  - platform: device
+    domain: tasmota
+    device_id: f565f4b376db10ab416fca6d541d1aec
+    type: button_triple_press
+    subtype: button_1
+    discovery_id: 40F520FBA0A4_button_1_TRIPLE
+  condition: []
+  action:
+  - service: scene.turn_on
+    target:
+      entity_id: scene.bedtime
+    metadata: {}
+  mode: single
+- id: '1665233594763'
+  alias: Turn off lounge light when UV on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - light.uv_lights
+    to: 'on'
+  condition: []
+  action:
+  - type: turn_off
+    device_id: 22a560bbf56d16bfe4bc698ff7f1f4c6
+    entity_id: light.lounge_light
+    domain: light
+  mode: single
+- id: '1667252662452'
+  alias: Set All Lights
+  description: ''
+  trigger:
+  - platform: homeassistant
+    event: start
+  condition: []
+  action:
+  - service: group.set
+    data:
+      object_id: all_lights
+      entities: '{{ states.light | rejectattr(''entity_id'',''eq'',''light.all_lights'')
+        | map(attribute=''entity_id'') | list }}
+
+        '
+  - service: group.set
+    data:
+      object_id: inside_lights
+      entities: '{{ states.light | rejectattr(''entity_id'', ''search'', (''outside''))
+        | map(attribute=''entity_id'') | list }}
+
+        '
+  mode: single
+- id: '1668066460553'
+  alias: Control Freak Art
+  description: ''
+  trigger:
+  - device_id: 7d15519274a37a2d2b9b1fdc9cd9f629
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: button
+  condition: []
+  action:
+  - service: media_player.volume_set
+    data:
+      volume_level: 0.42
+    target:
+      entity_id: media_player.lounge
+  - service: notify.alexa_media
+    data:
+      target: media_player.lounge
+      data:
+        type: tts
+      message: <speak><audio src='https://jimbroze-jarvis.s3.eu-west-1.amazonaws.com/control.mp3'/></speak>
+  - service: media_player.volume_set
+    data:
+      volume_level: 0.33
+    target:
+      entity_id: media_player.lounge
+  mode: single
