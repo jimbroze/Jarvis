@@ -36,7 +36,7 @@ Welcome to the home of my Smart Home. Feel free to use it as inspiration or as a
 * [(Container) MariaDB](https://mariadb.org/) - Short term SQL storage for HomeAssistant data
 * [(Container) Influxdb](https://www.influxdata.com/) - Longer term storage of HomeAssistant timeseries data for viewing and analysis
 * [(Container) Mosquitto](https://mosquitto.org/) - MQTT broker for easy integration with IoT devices
-* [(Container) Room Assistant](https://mosquitto.org/) - Bluetooth room presence detection
+* [(Container) Room Assistant]([https://mosquitto.org/](https://www.room-assistant.io/)) - Bluetooth room presence detection
 
 
 ### <a name="screenshots"></a>Screenshots:
