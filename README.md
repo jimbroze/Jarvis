@@ -1,7 +1,7 @@
 <h1 align="center">
   Jarvis
 </h1>
-Welcome to my Smart Home's home. Feel free to use it as inspiration or as a reference.
+Welcome to the home of my Smart Home. Feel free to use it as inspiration or as a reference.
 <div align="center"><a name="menu"></a>
   <h4>
     <a href="https://github.com/jimbroze/Jarvis#hardware">
@@ -30,6 +30,14 @@ Welcome to my Smart Home's home. Feel free to use it as inspiration or as a refe
 * [Ubuntu](https://youtu.be/ipatCbsY-54) - Every great house starts with a solid foundation
 * [Docker Compose](https://Docker.com) - I use Docker Compose to easily specify and control all of the different packages that run on the server
 * [(Container) Home Assistant](https://www.home-assistant.io/) - Home Automation software with limitless potential
+* [(Container) Nginx](https://www.nginx.com/) - Home Automation software with limitless potential
+* [(Container) Loki](https://grafana.com/oss/loki/) - Capture and store logs from all Docker containers
+* [(Container) Grafana](https://grafana.com/) - Display logs and any of the data captured within Home Assistant
+* [(Container) MariaDB](https://mariadb.org/) - Short term SQL storage for HomeAssistant data
+* [(Container) Influxdb](https://www.influxdata.com/) - Longer term storage of HomeAssistant timeseries data for viewing and analysis
+* [(Container) Mosquitto](https://mosquitto.org/) - MQTT broker for easy integration with IoT devices
+* [(Container) Room Assistant]([https://mosquitto.org/](https://www.room-assistant.io/)) - Bluetooth room presence detection
+
 
 ### <a name="screenshots"></a>Screenshots:
 #### Floorplan
