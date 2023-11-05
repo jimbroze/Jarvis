@@ -7,7 +7,7 @@ appdaemon:
     HASS:
       type: hass
       ha_url: http://192.168.0.11:8123
-      token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJiMzJiNzQ2MzY0YTc0MjZjYTA5NzY5MjAzYmEyOTFhZCIsImlhdCI6MTY2MjIzMjY4MiwiZXhwIjoxOTc3NTkyNjgyfQ.k6yjB0uqn-UcSkEMowSee0ekQ4BFN_bFEVswlS3SVSI
+      token: !secret HA_TOKEN
     MQTT:
       type: mqtt
       namespace: mqtt

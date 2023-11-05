@@ -14,6 +14,17 @@ sudo systemctl start bluetooth.service
 # Loki
 echo "------- Loki ---------"
 docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+# Set following in /etc/docker/daemon.json
+# {
+#     "debug" : true,
+#     "log-driver": "loki",
+#     "log-opts": {
+#         "loki-url": "http://localhost:3100/loki/api/v1/push"
+#         "max-size": "30m",
+#         "max-file": "3"
+#         "keep-file": true
+#     }
+# }
 
 # # configure influxdb
 # echo "------- Inluxdb --------"

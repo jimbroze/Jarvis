@@ -8,7 +8,6 @@ services:
     # user: root # Required to write to /sys/class/gpio
     environment:
       HA_URL: "http://192.168.0.11:8123"
-      TOKEN: ${HA_APPDAEMON_KEY}
       DASH_URL: "http://192.168.0.11:5050"
     ports:
       - "5050:5050"
@@ -137,6 +136,7 @@ services:
       driver: loki
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
+        max-size: "100m"
   #docker exec -it homeassistant bash
   #wget -q -O - https://install.hacs.xyz | bash -
 
@@ -169,31 +169,31 @@ services:
       options:
         loki-url: "http://localhost:3100/loki/api/v1/push"
 
-  konnector:
-    container_name: konnector
-    build:
-      context: ./konnector/
-    ports:
-      - "8080:8080"
-    volumes:
-      - "${DATADIR}/configs/konnector/:/data/"
-    environment:
-      PORT: 8080
-      MODULE_NAME: konnector.main
-      ENDPOINT: https://${SUBDOMAIN}.${DOMAIN}/konnector
-      LOG_LEVEL: info
-      AUTH: false
-    healthcheck:
-      test: curl --fail -I -X GET http://localhost:8080 || exit 1
-      interval: 30s
-      retries: 5
-      start_period: 30s
-      timeout: 5s
-    restart: unless-stopped
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+  # konnector:
+  #   container_name: konnector
+  #   build:
+  #     context: ./konnector/
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - "${DATADIR}/configs/konnector/:/data/"
+  #   environment:
+  #     PORT: 8080
+  #     MODULE_NAME: konnector.main
+  #     ENDPOINT: https://${SUBDOMAIN}.${DOMAIN}/konnector
+  #     LOG_LEVEL: debug
+  #     AUTH: false
+  #   healthcheck:
+  #     test: curl --fail -I -X GET http://localhost:8080 || exit 1
+  #     interval: 30s
+  #     retries: 5
+  #     start_period: 30s
+  #     timeout: 5s
+  #   restart: unless-stopped
+  #   logging:
+  #     driver: loki
+  #     options:
+  #       loki-url: "http://localhost:3100/loki/api/v1/push"
 
   # docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
   loki:
@@ -206,6 +206,11 @@ services:
       - "${DATADIR}/configs/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml"
       - "${DATADIR}/storage/loki/:/data/loki/"
     command: -config.file=/etc/loki/loki-config.yaml
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "30m"
+        max-file: "3"
 
   mariadb:
     container_name: mariadb
