@@ -27,11 +27,10 @@ RUN curl -L -o /tmp/ddclient-4.0.0.tar.gz https://github.com/ddclient/ddclient/a
     make && \
     make install
 
-# COPY crontab /etc/cron.d/crontab
 RUN touch /etc/cron.d/crontab && \
     chmod 0644 /etc/cron.d/crontab && \
     crontab /etc/cron.d/crontab && \
-    echo "0 0,12 * * * root /opt/certbot/bin/python -c 'import random; import time; time.sleep(random.random() * 3600)' && certbot renew -q" | tee -a /etc/cron.d/crontab > /dev/null
+    echo "0 0,12 * * * root /opt/certbot/bin/python -c 'import random; import time; time.sleep(random.random() * 3600)' && certbot renew -q >> /proc/1/fd/1 2>> /proc/1/fd/2" | tee -a /etc/cron.d/crontab > /dev/null
 
 ARG SUBDOMAIN
 ARG DOMAIN
@@ -39,6 +38,5 @@ ARG DOMAIN_NAME
 ARG EMAIL
 
 COPY init.sh /certbot/init.sh
-COPY certbot_renewal.sh /certbot/certbot_renewal.sh
 
 ENTRYPOINT ["bash", "/certbot/init.sh"]

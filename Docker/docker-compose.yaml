@@ -1,5 +1,3 @@
-#Ensure 80 and 443 are forwarded on router!
-
 services:
   alloy:
     container_name: alloy
@@ -20,7 +18,6 @@ services:
   appdaemon:
     container_name: appdaemon
     image: acockburn/appdaemon:latest
-    # user: root # Required to write to /sys/class/gpio
     environment:
       HA_URL: "http://${DICKHOME_IP}:8123"
       DASH_URL: "http://${DICKHOME_IP}:5050"
@@ -28,25 +25,9 @@ services:
       - "5050:5050"
     volumes:
       - "${DATADIR}/configs/appdaemon/:/conf/"
-      # - "/sys/class/gpio/:/sys/class/gpio/"
-      # - "/sys/devices/platform/pinctrl/:/sys/devices/platform/pinctrl/"
-    # devices:
-    #   - "/dev/gpiochip2:/dev/gpiochip2"
-    #   - "/dev/gpiochip2:/dev/gpiochip3"
     depends_on:
       - homeassistant
     restart: unless-stopped
-  # binday:
-  #   container_name: binday
-  #   build:
-  #     context: ./binday/
-  #   volumes:
-  #     - "${DATADIR}/binday/:/data/"
-  #   environment:
-  #     PYTHONUNBUFFERED: 1
-  #     LOCATION_CODE: ${LOCATION_CODE}
-  #     CAL_ID: ${CAL_ID}
-
 
   duplicati:
     image: ghcr.io/linuxserver/duplicati
@@ -68,30 +49,6 @@ services:
     ports:
       - 8200:8200
     restart: unless-stopped
-    # logging:
-    #   driver: loki
-    #   options:
-    #     loki-url: "http://localhost:3100/loki/api/v1/push"
-
-  # github_runner:
-  #   container_name: github_runner
-  #   image: myoung34/github-runner:latest
-  #   restart: unless-stopped
-  #   environment:
-  #     REPO_URL: https://github.com/jimbroze/Jarvis
-  #     RUNNER_NAME: Jarvis
-  #     ACCESS_TOKEN: ${GITHUB_TOKEN}
-  #     RUNNER_WORKDIR: ${DATADIR}
-  #     # RUNNER_GROUP: my-group
-  #     RUNNER_SCOPE: "repo"
-  #     LABELS: linux,arm64,DietPi
-  #   volumes:
-  #     - "${DATADIR}:${DATADIR}"
-  #     - "/var/run/docker.sock:/var/run/docker.sock"
-  #     - "/tmp/runner:/tmp/runner"
-  #     # note: a quirk of docker-in-docker is that this path
-  #     # needs to be the same path on host and inside the container,
-  #     # docker mgmt cmds run outside of docker but expect the paths from within
 
   grafana:
     container_name: grafana
@@ -101,7 +58,6 @@ services:
     depends_on:
       - influxdb
         # condition: service_healthy
-      # - nginx
     user: "0"
     volumes:
       - "${DATADIR}/storage/grafana/:/var/lib/grafana/"
@@ -110,10 +66,7 @@ services:
     environment:
       - GF_AUTH_DISABLE_LOGIN_FORM=false
       - GF_AUTH_ANONYMOUS_ENABLED=false
-      # - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_SECURITY_ALLOW_EMBEDDING=true
-      # - GF_SERVER_DOMAIN=${SUBDOMAIN}.${DOMAIN}
-      # - GF_SERVER_ROOT_URL=https://${SUBDOMAIN}.${DOMAIN}/grafana/
       - GF_SERVER_ROOT_URL=/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
 
@@ -138,12 +91,9 @@ services:
       retries: 5
       start_period: 30s
       timeout: 5s
-  #docker exec -it homeassistant bash
-  #wget -q -O - https://install.hacs.xyz | bash -
 
   influxdb:
     container_name: influxdb
-    # image: "influxdb:latest"
     build:
       context: ./influxdb/
     restart: unless-stopped
@@ -165,28 +115,6 @@ services:
       retries: 24
     ports:
       - 8086:8086
-
-  # konnector:
-  #   container_name: konnector
-  #   build:
-  #     context: ./konnector/
-  #   ports:
-  #     - "8080:8080"
-  #   volumes:
-  #     - "${DATADIR}/configs/konnector/:/data/"
-  #   environment:
-  #     PORT: 8080
-  #     MODULE_NAME: konnector.main
-  #     ENDPOINT: https://${SUBDOMAIN}.${DOMAIN}/konnector
-  #     LOG_LEVEL: debug
-  #     AUTH: false
-  #   healthcheck:
-  #     test: curl --fail -I -X GET http://localhost:8080 || exit 1
-  #     interval: 30s
-  #     retries: 5
-  #     start_period: 30s
-  #     timeout: 5s
-  #   restart: unless-stopped
 
   loki:
     container_name: loki
@@ -217,34 +145,6 @@ services:
     ports:
       - "3306:3306"
 
-  # monitor:
-  #   container_name: monitor
-  #   # build:
-  #   #   context: ./monitor/
-  #   image: mashupmill/presence-monitor:latest
-  #   volumes:
-  #     - "${DATADIR}/storage/monitor/:/config/"
-  #     - "/etc/localtime:/etc/localtime:ro"
-  #   environment:
-  #     MQTT_ADDRESS: ${DICKHOME_IP}
-  #     MQTT_USER: ${MOSQUITTO_USER}
-  #     MQTT_PASSWORD: ${MOSQUITTO_PASS}
-  #     MQTT_PUBLISHER_IDENTITY: bedroom
-  #     # KNOWN_BEACON_ADDRESSES: |
-  #     #   FF:FF:FF:FF:FF:FF Red Tag
-  #     #   FF:FF:FF:FF:FF:FF Green Tag
-  #     #   FF:FF:FF:FF:FF:FF White Tag
-  #     #   FF:FF:FF:FF:FF:FF Black Tag
-  #     KNOWN_STATIC_ADDRESSES: |
-  #       54:BA:D6:D8:8B:68 mobile_skynet
-  #     #   FF:FF:FF:FF:FF:FF Beta Phone BT
-  #   network_mode: host
-  #   cap_add:
-  #     - NET_ADMIN
-  #   privileged: true
-  #   # command: bash monitor.sh -h #help
-  #   command: bash monitor.sh -V -b -x #Use -tr if other nodes are added
-
   mosquitto:
     container_name: mosquitto
     build:
@@ -263,19 +163,13 @@ services:
     build:
       context: ./nginx/
       args:
-        DOMAIN: ${DOMAIN}
-        SUBDOMAIN: ${SUBDOMAIN}
         DOMAIN_NAME: ${DOMAIN_NAME}
         EMAIL: ${EMAIL}
     environment:
-      DOMAIN: ${DOMAIN}
-      SUBDOMAIN: ${SUBDOMAIN}
       DOMAIN_NAME: ${DOMAIN_NAME}
       EMAIL: ${EMAIL}
-      TOKEN: ${DUCKTOKEN}
       CLOUDFLARE_DNS_TOKEN: ${CLOUDFLARE_DNS_TOKEN}
-    # depends_on:
-    #   - homeassistant
+      FETCH_CERTIFICATES: "false"
     volumes:
       - "${DATADIR}/configs/nginx/config/:/etc/nginx/config/"
       - "${DATADIR}/storage/certbot/data/:/etc/letsencrypt/"
@@ -337,7 +231,6 @@ services:
     ports:
       - "9090:9090"
 
-  # "integrations": ["homeAssistant", "bluetoothLowEnergy", "bluetoothClassic"]
   roomassistant:
     container_name: roomassistant
     image: mkerix/room-assistant
@@ -386,37 +279,3 @@ services:
       - 445:445
     cap_add:
       - CAP_NET_ADMIN
-
-  # vscode:
-  #   image: lscr.io/linuxserver/code-server:latest
-  #   container_name: vscode
-  #   environment:
-  #     - PUID=1000
-  #     - PGID=1000
-  #     - TZ=Europe/London
-  #     - PASSWORD=${VSCODE_PASSWORD} #optional
-  #     # - HASHED_PASSWORD= #optional
-  #     # - SUDO_PASSWORD=password #optional
-  #     # - SUDO_PASSWORD_HASH= #optional
-  #     # - PROXY_DOMAIN=code-server.my.domain #optional
-  #     - DEFAULT_WORKSPACE=/data #optional
-  #   volumes:
-  #     - ${DATADIR}/configs/vscode:/config
-  #     - ${DATADIR}:/data
-  #   ports:
-  #     - 8443:8443
-  #   restart: unless-stopped
-
-
-    # container_name: vscode
-    # image: codercom/code-server
-    # volumes:
-    #   - "${DATADIR}:/home/coder/project"
-    #   # <vs code config> should point to a local dir where vs code stores its data.
-    #   - ${DATADIR}/storage/vscode:/home/coder/.local/share/code-server
-    # ports:
-    #   - "8443:8080"
-    # command: code-server --auth password --disable-telemetry /home/coder/project
-    # environment:
-    #   PASSWORD: "${VSCODE_PASSWORD}"
-    # restart: unless-stopped
