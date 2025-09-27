@@ -1,147 +1,33 @@
 - id: '1634032502723'
   name: Cinema
   entities:
-    light.lightstrip:
-      min_mireds: 153
-      max_mireds: 500
-      effect_list:
-      - 'OFF'
-      - Static
-      - Blink
-      - Breath
-      - Color Wipe
-      - Color Wipe Inverse
-      - Color Wipe Reverse
-      - Color Wipe Reverse Inverse
-      - Color Wipe Random
-      - Random Color
-      - Single Dynamic
-      - Multi Dynamic
-      - Rainbow
-      - Rainbow Cycle
-      - Scan
-      - Dual Scan
-      - Fade
-      - Theater Chase
-      - Theater Chase Rainbow
-      - Running Lights
-      - Twinkle
-      - Twinkle Random
-      - Twinkle Fade
-      - Twinkle Fade Random
-      - Sparkle
-      - Flash Sparkle
-      - Hyper Sparkle
-      - Strobe
-      - Strobe Rainbow
-      - Multi Strobe
-      - Blink Rainbow
-      - Chase White
-      - Chase Color
-      - Chase Random
-      - Chase Rainbow
-      - Chase Flash
-      - Chase Flash Random
-      - Chase Rainbow White
-      - Chase Blackout
-      - Chase Blackout Rainbow
-      - Color Sweep Random
-      - Running Color
-      - Running Red Blue
-      - Running Random
-      - Larson Scanner
-      - Comet
-      - Fireworks
-      - Fireworks Random
-      - Merry Christmas
-      - Fire Flicker
-      - Fire Flicker (soft)
-      - Fire Flicker (intense)
-      - Circus Combustus
-      - Halloween
-      - Bicolor Chase
-      - Tricolor Chase
-      - ICU
-      - Autoplay
-      - Custom WS
-      - TV
-      - E1.31
-      - Fire 2012
-      - Gradient
-      - Custom 6
-      - Custom 7
-      - Custom 8
-      - Segment OFF
-      supported_color_modes:
-      - color_temp
-      - hs
-      friendly_name: LightStrip
-      supported_features: 63
-      color_mode: hs
-      brightness: 76
-      hs_color:
-      - 0
-      - 85.882
-      rgb_color:
-      - 255
-      - 36
-      - 36
-      xy_color:
-      - 0.68
-      - 0.301
-      color_temp: 327
-      effect: Static
-      state: 'on'
     media_player.lg_webos_tv_uj630v:
       source_list:
-      - AV
-      - Accessibility
-      - All 4
-      - BBC iPlayer
-      - Component
-      - Device Connector
-      - Disney+
-      - HDMI1
-      - HDMI2
-      - HDMI3
-      - ITV Hub
-      - LG Content Store
       - Live TV
-      - Music
-      - My5
-      - NOW TV
-      - Netflix
-      - Notifications
-      - Photo & Video
-      - Plex
-      - Prime Video
-      - Rakuten TV
-      - Recordings
-      - Screen Share
-      - Search
-      - TV Guide
-      - TV Scheduler
-      - User Guide
-      - Web Browser
-      - XPlay
-      - YouTube
-      volume_level: 0.2
-      is_volume_muted: false
-      source: Netflix
-      sound_output: tv_speaker
       assumed_state: true
       device_class: tv
-      entity_picture: /api/media_player_proxy/media_player.lg_webos_tv_uj630v?token=4505d49807b058fe2b326047817917eed421ec7bbce9a84a7327921bc8d57f49&cache=e589073deaba1ab7
-      friendly_name: '[LG] webOS TV UJ630V'
+      friendly_name: TV
       supported_features: 24509
-      state: 'on'
-    light.lounge_light:
+      state: 'off'
+    light.desk_light:
       supported_color_modes:
-      - brightness
-      color_mode: brightness
-      brightness: 76
-      friendly_name: Lounge Light
-      supported_features: 32
+      - onoff
+      friendly_name: Desk Light
+      supported_features: 0
+      state: 'off'
+    light.bedside_lamp:
+      supported_color_modes:
+      - onoff
+      friendly_name: Bedside Lamp
+      supported_features: 0
+      color_mode: onoff
+      state: 'on'
+    light.second_bed_lamp:
+      supported_color_modes:
+      - onoff
+      friendly_name: Second Bed Lamp
+      supported_features: 0
+      color_mode: onoff
       state: 'on'
   metadata: {}
   icon: mdi:television-classic
@@ -822,11 +708,13 @@
     light.bedroom_lamp:
       supported_color_modes:
       - onoff
-      color_mode: onoff
       friendly_name: Bedroom Lamp
       supported_features: 0
+      color_mode: onoff
       state: 'on'
     light.bedroom_light:
+      min_color_temp_kelvin: 1700
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 588
       effect_list:
@@ -860,8 +748,13 @@
       - color_temp
       - hs
       - rgb
+      flowing: false
+      music_mode: false
+      friendly_name: Bedroom Light
+      supported_features: 44
       color_mode: color_temp
       brightness: 143
+      color_temp_kelvin: 3663
       color_temp: 273
       hs_color:
       - 27.026
@@ -873,10 +766,6 @@
       xy_color:
       - 0.442
       - 0.371
-      flowing: false
-      music_mode: false
-      friendly_name: Bedroom Light
-      supported_features: 44
       state: 'on'
     light.kitchen_lightswitch_kitchen_light:
       supported_color_modes:
@@ -891,6 +780,8 @@
       supported_features: 32
       state: 'off'
     light.lightstrip:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
       min_mireds: 153
       max_mireds: 500
       effect_list:
@@ -972,12 +863,16 @@
       - onoff
       friendly_name: UV Lights
       supported_features: 0
-      state: 'off'
+      color_mode: onoff
+      state: 'on'
     light.kitchen_lightswitch_outside_light:
       supported_color_modes:
       - onoff
       friendly_name: Outside Light
       supported_features: 0
+      state: 'off'
+    switch.tasmota:
+      friendly_name: Traffic Lights
       state: 'off'
   metadata:
     light.bedroom_lamp:
@@ -1004,7 +899,7 @@
       friendly_name: Lounge Light
       supported_features: 32
       color_mode: brightness
-      brightness: 178
+      brightness: 189
       state: 'on'
     light.lightstrip:
       min_color_temp_kelvin: 2000
@@ -1082,8 +977,214 @@
       supported_color_modes:
       - color_temp
       - hs
+      color_mode: hs
+      brightness: 255
+      hs_color:
+      - 14.824
+      - 100
+      rgb_color:
+      - 255
+      - 63
+      - 0
+      xy_color:
+      - 0.677
+      - 0.319
+      effect: Static
       friendly_name: LightStrip
       supported_features: 44
+      state: 'on'
+    light.kitchen_lightswitch_kitchen_light:
+      supported_color_modes:
+      - onoff
+      friendly_name: Kitchen Light
+      supported_features: 0
+      state: 'off'
+    switch.bedroom_lamp:
+      friendly_name: Bedroom Lamp
+      state: 'on'
+    light.bedroom_lamp:
+      supported_color_modes:
+      - onoff
+      friendly_name: Bedroom Lamp
+      supported_features: 0
+      color_mode: onoff
+      state: 'on'
+    light.bedroom_light:
+      min_color_temp_kelvin: 1700
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 588
+      effect_list:
+      - Strobe color
+      - Police
+      - Christmas
+      - RGB
+      - Random Loop
+      - Fast Random Loop
+      - LSD
+      - Slowdown
+      - Night Mode
+      - Date Night
+      - Movie
+      - Sunrise
+      - Sunset
+      - Romance
+      - Happy Birthday
+      - Disco
+      - Strobe epilepsy!
+      - Alarm
+      - Police2
+      - WhatsApp
+      - Facebook
+      - Twitter
+      - Home
+      - Candle Flicker
+      - Slow Temp
+      - Stop
+      supported_color_modes:
+      - color_temp
+      - hs
+      - rgb
+      color_mode: color_temp
+      brightness: 212
+      color_temp_kelvin: 2352
+      color_temp: 425
+      hs_color:
+      - 29.294
+      - 78.165
+      rgb_color:
+      - 255
+      - 152
+      - 55
+      xy_color:
+      - 0.564
+      - 0.389
+      flowing: false
+      music_mode: false
+      friendly_name: Bedroom Light
+      supported_features: 44
+      state: 'on'
+    switch.tasmota:
+      friendly_name: Traffic Lights
+      state: 'on'
+  icon: mdi:book-open-blank-variant
+  metadata:
+    light.lightstrip:
+      entity_only: true
+    light.kitchen_lightswitch_kitchen_light:
+      entity_only: true
+- id: '1699393774186'
+  name: Evening
+  entities:
+    light.bedside_lamp:
+      supported_color_modes:
+      - onoff
+      friendly_name: Bedside Lamp
+      supported_features: 0
+      color_mode: onoff
+      state: 'on'
+    light.second_bed_lamp:
+      supported_color_modes:
+      - onoff
+      friendly_name: Second Bed Lamp
+      supported_features: 0
+      color_mode: onoff
+      state: 'on'
+    light.desk_light:
+      supported_color_modes:
+      - onoff
+      friendly_name: Desk Light
+      supported_features: 0
+      color_mode: onoff
+      state: 'on'
+    light.traffic_lights_2:
+      supported_color_modes:
+      - onoff
+      friendly_name: Traffic Lights
+      supported_features: 0
+      color_mode: onoff
+      state: 'on'
+  icon: mdi:sofa
+  metadata: {}
+- id: '1701617457195'
+  name: Lightstrip Normal
+  entities:
+    light.lightstrip:
+      min_color_temp_kelvin: 2000
+      max_color_temp_kelvin: 6535
+      min_mireds: 153
+      max_mireds: 500
+      effect_list:
+      - 'OFF'
+      - Static
+      - Blink
+      - Breath
+      - Color Wipe
+      - Color Wipe Inverse
+      - Color Wipe Reverse
+      - Color Wipe Reverse Inverse
+      - Color Wipe Random
+      - Random Color
+      - Single Dynamic
+      - Multi Dynamic
+      - Rainbow
+      - Rainbow Cycle
+      - Scan
+      - Dual Scan
+      - Fade
+      - Theater Chase
+      - Theater Chase Rainbow
+      - Running Lights
+      - Twinkle
+      - Twinkle Random
+      - Twinkle Fade
+      - Twinkle Fade Random
+      - Sparkle
+      - Flash Sparkle
+      - Hyper Sparkle
+      - Strobe
+      - Strobe Rainbow
+      - Multi Strobe
+      - Blink Rainbow
+      - Chase White
+      - Chase Color
+      - Chase Random
+      - Chase Rainbow
+      - Chase Flash
+      - Chase Flash Random
+      - Chase Rainbow White
+      - Chase Blackout
+      - Chase Blackout Rainbow
+      - Color Sweep Random
+      - Running Color
+      - Running Red Blue
+      - Running Random
+      - Larson Scanner
+      - Comet
+      - Fireworks
+      - Fireworks Random
+      - Merry Christmas
+      - Fire Flicker
+      - Fire Flicker (soft)
+      - Fire Flicker (intense)
+      - Circus Combustus
+      - Halloween
+      - Bicolor Chase
+      - Tricolor Chase
+      - ICU
+      - Autoplay
+      - Custom WS
+      - TV
+      - E1.31
+      - Fire 2012
+      - Gradient
+      - Custom 6
+      - Custom 7
+      - Custom 8
+      - Segment OFF
+      supported_color_modes:
+      - color_temp
+      - hs
       color_mode: hs
       brightness: 255
       hs_color:
@@ -1097,16 +1198,10 @@
       - 0.151
       - 0.343
       effect: Color Wipe
+      friendly_name: LightStrip
+      supported_features: 44
       state: 'on'
-    light.kitchen_lightswitch_kitchen_light:
-      supported_color_modes:
-      - onoff
-      friendly_name: Kitchen Light
-      supported_features: 0
-      state: 'off'
-  icon: mdi:book-open-blank-variant
+  icon: mdi:bulkhead-light
   metadata:
     light.lightstrip:
-      entity_only: true
-    light.kitchen_lightswitch_kitchen_light:
       entity_only: true

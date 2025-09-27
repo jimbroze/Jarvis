@@ -28,13 +28,17 @@ calendar:
 default_config:
 
 device_tracker:
-  - platform: arris_tg2492lg
-    host: 192.168.0.1
-    password: !secret router_password
-    # interval_seconds: 10
-    # consider_home: 180
-    new_device_defaults:
-      track_new_devices: True
+  # - platform: arris_tg2492lg
+  #   host: 192.168.1.1
+  #   password: !secret router_password
+  #   # interval_seconds: 10
+  #   # consider_home: 180
+  #   new_device_defaults:
+  #     track_new_devices: True
+
+duckdns:
+  domain: jimbroze
+  access_token: !secret duck_token
 
 frontend:
   themes: !include_dir_merge_named themes
@@ -66,12 +70,14 @@ http:
   use_x_forwarded_for: true
   trusted_proxies:
     - 127.0.0.1
-    - 192.168.0.11
+    - 192.168.1.11
     - ::1
 homeassistant:
-  internal_url: http://192.168.0.11:8123
+  internal_url: http://192.168.1.11:8123
   external_url: !secret HA_URL
   time_zone: "Europe/London"
+  country: GB
+  currency: GBP
   # time_zone: "Etc/GMT" # For google calendar authentication
   latitude: !secret LATITUDE
   longitude: !secret LONGITUDE
@@ -109,7 +115,7 @@ light:
   # - platform: flux_led
   #   automatic_add: true
   #   devices:
-  #     192.168.0.19:
+  #     192.168.1.19:
   #       name: Bedroom Light Strip
   # - platform: group
   #   name: All Lights
@@ -117,17 +123,17 @@ light:
   #     - light.bedroom_light
   #     - light.lightstrip
   #     - light.lounge_light
-  - platform: template
-    lights:
-      uv_lights:
-        friendly_name: "UV Lights"
-        unique_id: "uv_lights"
-        turn_on:
-          service: switch.turn_on
-          data:
-            entity_id: switch.uv_lights
-        turn_off:
-          service: script.uv_lights_off
+  # - platform: template
+  #   lights:
+  #     uv_lights:
+  #       friendly_name: "UV Lights"
+  #       unique_id: "uv_lights"
+  #       turn_on:
+  #         service: switch.turn_on
+  #         data:
+  #           entity_id: switch.uv_lights
+  #       turn_off:
+  #         service: script.uv_lights_off
 
 logger:
   default: info
@@ -153,6 +159,8 @@ rest_command:
     payload: !secret todoist_api_payload
     content_type: "application/x-www-form-urlencoded"
 
+shell_command:
+  restart_server: "reboot now"
 
 # tts:
 #   - platform: amazon_polly

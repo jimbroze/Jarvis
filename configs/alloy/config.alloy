@@ -1,0 +1,85 @@
+discovery.docker "linux" {
+    host = "unix:///var/run/docker.sock"
+}
+discovery.relabel "logs_integrations_docker" {
+	targets = []
+
+	rule {
+		source_labels = ["__meta_docker_container_name"]
+		regex = "/(.*)"
+		target_label = "service_name"
+	}
+}
+loki.process "docker" {
+	forward_to = [loki.write.default.receiver]
+
+	stage.regex {
+		expression = "(?i)(?P<level>FATAL|CRITICAL|ERROR|WARNING|INFO|DEBUG|TRACE)"
+	}
+
+	stage.template {
+		source   = "level_cleansed"
+		template = `{{ default "UNKNOWN" .level | ToUpper }}`
+	}
+
+	stage.labels {
+		values = { "level" = "level_cleansed" }
+	}
+}
+loki.source.docker "default" {
+	host       = "unix:///var/run/docker.sock"
+	targets    = discovery.docker.linux.targets
+	labels     = {"platform" = "docker"}
+	relabel_rules = discovery.relabel.logs_integrations_docker.rules
+	forward_to = [loki.process.docker.receiver]
+}
+
+local.file_match "plex" {
+	path_targets = [{
+		__address__ = "localhost",
+		__path__    = "/plexlogs/*.log",
+		job         = "plex",
+	}]
+}
+loki.process "plex" {
+	forward_to = [loki.write.default.receiver]
+
+	stage.regex {
+		expression = "^(?s)(?P<time>\\w+ \\d+, \\d+ \\d+:\\d+:\\d+\\.\\d+?) \\[(?P<epoch>[^\\]]+)\\] (?P<level>[a-zA-Z]+) - (?P<content>.*)$"
+	}
+
+	stage.labels {
+		values = {
+			content = "",
+			level   = "",
+		}
+	}
+
+	stage.static_labels {
+		values = {
+			platform = "docker",
+			service_name = "plex",
+		}
+	}
+
+	stage.timestamp {
+		source   = "time"
+		format   = "Jan 02, 2006 15:04:05.000"
+		location = "Europe/London"
+	}
+
+	stage.output {
+		source = "content"
+	}
+}
+loki.source.file "plex" {
+	targets               = local.file_match.plex.targets
+	forward_to            = [loki.process.plex.receiver]
+	legacy_positions_file = "/tmp/positions.yaml"
+}
+
+loki.write "default" {
+	endpoint {
+		url = "http://loki:3100/loki/api/v1/push"
+	}
+}

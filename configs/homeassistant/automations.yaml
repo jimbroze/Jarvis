@@ -32,33 +32,6 @@
     target:
       device_id: 9929ef9114c2392508fbe32ed426f34b
   mode: single
-- id: '1633980276683'
-  alias: Turn off bedroom speakers at night
-  description: ''
-  trigger:
-  - platform: time
-    at: '21:45'
-  condition: []
-  action:
-  - service: switch.turn_off
-    target:
-      device_id: bd2923d9813f4473247009fcbe2e0d74
-  mode: single
-- id: '1634021797071'
-  alias: Change Alexa volume when speakers disconnect
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: switch.living_room_speakers
-    to: 'Off'
-  condition: []
-  action:
-  - service: media_player.volume_set
-    target:
-      entity_id: media_player.living_room_speaker
-    data:
-      volume_level: 0.4
-  mode: single
 - id: '1634022011502'
   alias: Turn on lights before waking
   description: ''
@@ -208,21 +181,6 @@
       entity_id: scene.bedtime
     metadata: {}
   mode: single
-- id: '1665233594763'
-  alias: Turn off lounge light when UV on
-  description: ''
-  trigger:
-  - platform: state
-    entity_id:
-    - light.uv_lights
-    to: 'on'
-  condition: []
-  action:
-  - type: turn_off
-    device_id: 22a560bbf56d16bfe4bc698ff7f1f4c6
-    entity_id: light.lounge_light
-    domain: light
-  mode: single
 - id: '1667252662452'
   alias: Set All Lights
   description: ''
@@ -273,4 +231,96 @@
       volume_level: 0.33
     target:
       entity_id: media_player.lounge
+  mode: single
+- id: '1699382867219'
+  alias: Living room lights Day/Night
+  description: ''
+  trigger:
+  - platform: sun
+    event: sunset
+    offset: 0
+  - platform: device
+    type: turned_on
+    device_id: 22a560bbf56d16bfe4bc698ff7f1f4c6
+    entity_id: light.lounge_light
+    domain: light
+  condition:
+  - condition: device
+    type: is_on
+    device_id: 22a560bbf56d16bfe4bc698ff7f1f4c6
+    entity_id: light.lounge_light
+    domain: light
+  - condition: state
+    entity_id: light.lightstrip
+    state: 'off'
+  action:
+  - if:
+    - condition: sun
+      after: sunrise
+      before: sunset
+      after_offset: -01:00:00
+    then:
+    - type: turn_on
+      device_id: 22a560bbf56d16bfe4bc698ff7f1f4c6
+      entity_id: light.lounge_light
+      domain: light
+      brightness_pct: 100
+    else:
+    - service: scene.turn_on
+      target:
+        entity_id: scene.evening
+      metadata: {}
+  mode: single
+- id: '1699429926631'
+  alias: Bedroom light Day/Night
+  description: ''
+  trigger:
+  - platform: device
+    type: turned_on
+    device_id: e48a62169a27e12cd5ee902c94e6ca36
+    entity_id: light.bedroom_light
+    domain: light
+  - platform: sun
+    event: sunset
+    offset: 0
+  condition:
+  - condition: device
+    type: is_on
+    device_id: e48a62169a27e12cd5ee902c94e6ca36
+    entity_id: light.bedroom_light
+    domain: light
+  - condition: device
+    type: is_off
+    device_id: c1f6eeec0dbca36b1deea3b128c5cd6d
+    entity_id: light.bedroom_lamp
+    domain: light
+  action:
+  - if:
+    - condition: sun
+      after: sunrise
+      before: sunset
+      after_offset: -02:00:00
+      before_offset: 00:30:00
+    then:
+    - service: scene.turn_on
+      target:
+        entity_id: scene.bedroom_light_normal
+      metadata: {}
+    else:
+    - type: turn_on
+      device_id: e48a62169a27e12cd5ee902c94e6ca36
+      entity_id: light.bedroom_light
+      domain: light
+      brightness_pct: 83
+  mode: single
+- id: '1727121310300'
+  alias: Reboot Server
+  description: ''
+  trigger:
+  - platform: time
+    at: 04:30:00
+  condition: []
+  action:
+  - service: shell_command.restart_server
+    data: {}
   mode: single

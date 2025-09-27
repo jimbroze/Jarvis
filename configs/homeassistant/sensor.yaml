@@ -1,30 +1,30 @@
-- platform: fitbit
-  # clock_format: 24H
-  # unit_system: en_GB
-  monitored_resources:
-    - "activities/calories"
-    - "activities/caloriesBMR"
-    - "activities/heart"
-    - "activities/steps"
-    - "devices/battery"
-    - "sleep/awakeningsCount"
-    - "sleep/efficiency"
-    - "sleep/minutesAfterWakeup"
-    - "sleep/minutesAsleep"
-    - "sleep/minutesAwake"
-    - "sleep/minutesToFallAsleep"
-    - "sleep/startTime"
-    - "sleep/timeInBed"
-  # # scan_interval: 30
+# - platform: fitbit
+#   # clock_format: 24H
+#   # unit_system: en_GB
+#   monitored_resources:
+#     - "activities/calories"
+#     - "activities/caloriesBMR"
+#     - "activities/heart"
+#     - "activities/steps"
+#     - "devices/battery"
+#     - "sleep/awakeningsCount"
+#     - "sleep/efficiency"
+#     - "sleep/minutesAfterWakeup"
+#     - "sleep/minutesAsleep"
+#     - "sleep/minutesAwake"
+#     - "sleep/minutesToFallAsleep"
+#     - "sleep/startTime"
+#     - "sleep/timeInBed"
+#   # # scan_interval: 30
 
-- platform: systemmonitor
-  resources:
-    - type: disk_use_percent
-      arg: /
-    - type: memory_use_percent
-    - type: processor_use
-    - type: processor_temperature
-    - type: last_boot
+# - platform: systemmonitor
+#   resources:
+#     - type: disk_use_percent
+#       arg: /
+#     - type: memory_use_percent
+#     - type: processor_use
+#     - type: processor_temperature
+#     - type: last_boot
 
 - platform: rest
   name: Todo List

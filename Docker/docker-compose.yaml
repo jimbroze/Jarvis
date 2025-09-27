@@ -1,14 +1,29 @@
 #Ensure 80 and 443 are forwarded on router!
 
-version: "3"
 services:
+  alloy:
+    container_name: alloy
+    image: grafana/alloy:latest
+    restart: unless-stopped
+    volumes:
+      - "${DATADIR}/configs/alloy/config.alloy:/etc/alloy/config.alloy"
+      - "${DATADIR}/configs/plex/Library/Application Support/Plex Media Server/Logs:/plexlogs"
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "12345:12345"
+    command: 
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      - --storage.path=/var/lib/alloy/data
+      - /etc/alloy/config.alloy
+
   appdaemon:
     container_name: appdaemon
     image: acockburn/appdaemon:latest
     # user: root # Required to write to /sys/class/gpio
     environment:
-      HA_URL: "http://192.168.0.11:8123"
-      DASH_URL: "http://192.168.0.11:5050"
+      HA_URL: "http://${DICKHOME_IP}:8123"
+      DASH_URL: "http://${DICKHOME_IP}:5050"
     ports:
       - "5050:5050"
     volumes:
@@ -21,11 +36,6 @@ services:
     depends_on:
       - homeassistant
     restart: unless-stopped
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-
   # binday:
   #   container_name: binday
   #   build:
@@ -36,12 +46,7 @@ services:
   #     PYTHONUNBUFFERED: 1
   #     LOCATION_CODE: ${LOCATION_CODE}
   #     CAL_ID: ${CAL_ID}
-  #   depends_on:
-  #     - loki
-  #   logging:
-  #     driver: loki
-  #     options:
-  #       loki-url: "http://localhost:3100/loki/api/v1/push"
+
 
   duplicati:
     image: ghcr.io/linuxserver/duplicati
@@ -51,22 +56,22 @@ services:
       - PGID=0
       - TZ=Europe/London
     volumes:
-      - "${DATADIR}/configs/duplicati/config:/config"
-      - "${DATADIR}/backup:/backups"
+      - "${STORAGE_DATADIR}/duplicati/config:/config"
+      - "${STORAGE_DATADIR}/duplicati/backup:/backups"
       - "${DATADIR}/configs/homeassistant/backups:/source/homeassistant"
       - "${DATADIR}/configs:/source/configs"
       - "${DATADIR}/Docker:/source/Docker"
       - "${DATADIR}/storage/db/backups:/source/db"
       - "${DATADIR}/storage/loki:/source/loki"
-      - "${DATADIR}/storage:/source/storage"
-      - "~/.:/source/home"
+      # - "${DATADIR}/storage:/source/storage"
+      # - "~/.:/source/home"
     ports:
       - 8200:8200
     restart: unless-stopped
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+    # logging:
+    #   driver: loki
+    #   options:
+    #     loki-url: "http://localhost:3100/loki/api/v1/push"
 
   # github_runner:
   #   container_name: github_runner
@@ -96,21 +101,22 @@ services:
     depends_on:
       - influxdb
         # condition: service_healthy
-      - nginx
+      # - nginx
     user: "0"
     volumes:
       - "${DATADIR}/storage/grafana/:/var/lib/grafana/"
     ports:
       - 3000:3000
-    # uncomment this if you wanta to allow anonymus acces to Grafana for embedding (e.g. in Home Assistant dashboards)
     environment:
       - GF_AUTH_DISABLE_LOGIN_FORM=false
       - GF_AUTH_ANONYMOUS_ENABLED=false
       # - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_SECURITY_ALLOW_EMBEDDING=true
-      - GF_SERVER_DOMAIN=${SUBDOMAIN}.${DOMAIN}
-      - GF_SERVER_ROOT_URL=https://${SUBDOMAIN}.${DOMAIN}/grafana/
+      # - GF_SERVER_DOMAIN=${SUBDOMAIN}.${DOMAIN}
+      # - GF_SERVER_ROOT_URL=https://${SUBDOMAIN}.${DOMAIN}/grafana/
+      - GF_SERVER_ROOT_URL=/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
+
 
   homeassistant:
     container_name: homeassistant
@@ -122,7 +128,7 @@ services:
     privileged: true
     network_mode: host
     extra_hosts:
-      - "${SUBDOMAIN}.${DOMAIN}:192.168.0.11"
+      - "home.${DOMAIN_NAME}:${DICKHOME_IP}"
     depends_on:
       - mariadb
       - influxdb
@@ -132,11 +138,6 @@ services:
       retries: 5
       start_period: 30s
       timeout: 5s
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
-        max-size: "100m"
   #docker exec -it homeassistant bash
   #wget -q -O - https://install.hacs.xyz | bash -
 
@@ -164,10 +165,6 @@ services:
       retries: 24
     ports:
       - 8086:8086
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
 
   # konnector:
   #   container_name: konnector
@@ -190,12 +187,7 @@ services:
   #     start_period: 30s
   #     timeout: 5s
   #   restart: unless-stopped
-  #   logging:
-  #     driver: loki
-  #     options:
-  #       loki-url: "http://localhost:3100/loki/api/v1/push"
 
-  # docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
   loki:
     container_name: loki
     image: grafana/loki:latest
@@ -204,13 +196,8 @@ services:
       - "3100:3100"
     volumes:
       - "${DATADIR}/configs/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml"
-      - "${DATADIR}/storage/loki/:/data/loki/"
+      - "${STORAGE_DATADIR}/loki/:/loki/"
     command: -config.file=/etc/loki/loki-config.yaml
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "30m"
-        max-file: "3"
 
   mariadb:
     container_name: mariadb
@@ -223,15 +210,12 @@ services:
       MYSQL_DATABASE: "${HA_DB_NAME}"
       MARIADB_USER: "${HA_DB_USER}"
       MARIADB_PASSWORD: "${HA_DB_PASSWORD}"
+      MARIADB_AUTO_UPGRADE: "true"
     volumes:
       - "${DATADIR}/storage/db/mariadb/:/var/lib/mysql/"
       - "${DATADIR}/storage/db/backups/mariadb:/backup"
     ports:
       - "3306:3306"
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
 
   # monitor:
   #   container_name: monitor
@@ -242,7 +226,7 @@ services:
   #     - "${DATADIR}/storage/monitor/:/config/"
   #     - "/etc/localtime:/etc/localtime:ro"
   #   environment:
-  #     MQTT_ADDRESS: 192.168.0.11
+  #     MQTT_ADDRESS: ${DICKHOME_IP}
   #     MQTT_USER: ${MOSQUITTO_USER}
   #     MQTT_PASSWORD: ${MOSQUITTO_PASS}
   #     MQTT_PUBLISHER_IDENTITY: bedroom
@@ -260,10 +244,6 @@ services:
   #   privileged: true
   #   # command: bash monitor.sh -h #help
   #   command: bash monitor.sh -V -b -x #Use -tr if other nodes are added
-  #   logging:
-  #     driver: loki
-  #     options:
-  #       loki-url: "http://localhost:3100/loki/api/v1/push"
 
   mosquitto:
     container_name: mosquitto
@@ -277,10 +257,6 @@ services:
     ports:
       - "1883:1883"
     restart: unless-stopped
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
 
   nginx:
     container_name: nginx
@@ -289,55 +265,79 @@ services:
       args:
         DOMAIN: ${DOMAIN}
         SUBDOMAIN: ${SUBDOMAIN}
+        DOMAIN_NAME: ${DOMAIN_NAME}
+        EMAIL: ${EMAIL}
     environment:
       DOMAIN: ${DOMAIN}
       SUBDOMAIN: ${SUBDOMAIN}
+      DOMAIN_NAME: ${DOMAIN_NAME}
       EMAIL: ${EMAIL}
       TOKEN: ${DUCKTOKEN}
-    depends_on:
-      - homeassistant
+      CLOUDFLARE_DNS_TOKEN: ${CLOUDFLARE_DNS_TOKEN}
+    # depends_on:
+    #   - homeassistant
     volumes:
-      - "${DATADIR}/configs/nginx/config/:/etc/nginx/conf.d/"
+      - "${DATADIR}/configs/nginx/config/:/etc/nginx/config/"
       - "${DATADIR}/storage/certbot/data/:/etc/letsencrypt/"
       - "${DATADIR}/storage/certbot/www/:/var/www/certbot/"
     network_mode: host
-    restart: unless-stopped
+    restart: no
     healthcheck:
       test: curl --fail -I -X GET http://localhost:80 || exit 1
       interval: 30s
       retries: 5
       start_period: 30s
       timeout: 5s
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
 
   organizr:
     container_name: organizr
     image: organizr/organizr
-    restart: always
+    restart: unless-stopped
     environment:
       PUID: 1000
       PGID: 1000
       fpm: false
     volumes:
-      - ${DATADIR}/configs/organizr:/config
+      - ${STORAGE_DATADIR}/organizr:/config
     ports:
       - 8980:80
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
 
-  # promtail:
-  #   image: grafana/promtail:latest
-  #   volumes:
-  #     - "${DATADIR}/promtail/config/config.yaml:/etc/promtail/config.yml"
-  #     - "${DATADIR}/promtail/log:/var/log"
-  #   command: -config.file=/etc/promtail/config.yml
+  plex:
+    container_name: plex
+    image: plexinc/pms-docker
+    restart: unless-stopped
+    environment:
+      - TZ=Europe/London
+      - PLEX_CLAIM=${PLEX_PASS}
+    network_mode: host
+    volumes:
+      - ${STORAGE_DATADIR}/plex:/config
+      - /transcode:/transcode
+      - /mnt/shared/media:/data
 
-            # "integrations": ["homeAssistant", "bluetoothLowEnergy", "bluetoothClassic"]
+  portainer:
+    container_name: portainer
+    image: portainer/portainer:latest
+    restart: unless-stopped
+    ports:
+      - "9000:9000/tcp"
+    environment:
+      - TZ=Europe/London
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "${DATADIR}/storage/portainer:/data"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: unless-stopped
+    command:
+      - --web.enable-remote-write-receiver
+      - --config.file=/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  # "integrations": ["homeAssistant", "bluetoothLowEnergy", "bluetoothClassic"]
   roomassistant:
     container_name: roomassistant
     image: mkerix/room-assistant
@@ -356,7 +356,7 @@ services:
           },
           "cluster": {
             "port": 6425,
-            "peerAddresses": ["192.168.0.13:6425"]
+            "peerAddresses": ["192.168.1.13:6425"]
           },
           "bluetoothLowEnergy": {
             "processIBeacon": true,
@@ -370,34 +370,42 @@ services:
           }
         }
     restart: unless-stopped
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
 
-  vscode:
-    image: lscr.io/linuxserver/code-server:latest
-    container_name: vscode
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Europe/London
-      - PASSWORD=${VSCODE_PASSWORD} #optional
-      # - HASHED_PASSWORD= #optional
-      # - SUDO_PASSWORD=password #optional
-      # - SUDO_PASSWORD_HASH= #optional
-      # - PROXY_DOMAIN=code-server.my.domain #optional
-      - DEFAULT_WORKSPACE=/data #optional
-    volumes:
-      - ${DATADIR}/configs/vscode:/config
-      - ${DATADIR}:/data
-    ports:
-      - 8443:8443
+  samba:
+    image: ghcr.io/servercontainers/samba:latest
+    container_name: samba
     restart: unless-stopped
-    logging:
-      driver: loki
-      options:
-        loki-url: "http://localhost:3100/loki/api/v1/push"
+    environment:
+      ACCOUNT_jimbroze: ${SAMBA_PASSWORD}
+      SAMBA_VOLUME_CONFIG_shared: "[Shared]; path=/shares/shared; valid users = jimbroze; force user = jimbroze; guest ok = no; read only = no; browseable = yes; available = yes; writable = yes"
+      SAMBA_VOLUME_CONFIG_backup: "[Backup]; path=/shares/backup; valid users = jimbroze; force user = jimbroze; guest ok = no; read only = no; browseable = yes; available = yes; writable = yes"
+    volumes:
+      - /mnt/shared:/shares/shared
+      - /mnt/backup:/shares/backup
+    ports:
+      - 445:445
+    cap_add:
+      - CAP_NET_ADMIN
+
+  # vscode:
+  #   image: lscr.io/linuxserver/code-server:latest
+  #   container_name: vscode
+  #   environment:
+  #     - PUID=1000
+  #     - PGID=1000
+  #     - TZ=Europe/London
+  #     - PASSWORD=${VSCODE_PASSWORD} #optional
+  #     # - HASHED_PASSWORD= #optional
+  #     # - SUDO_PASSWORD=password #optional
+  #     # - SUDO_PASSWORD_HASH= #optional
+  #     # - PROXY_DOMAIN=code-server.my.domain #optional
+  #     - DEFAULT_WORKSPACE=/data #optional
+  #   volumes:
+  #     - ${DATADIR}/configs/vscode:/config
+  #     - ${DATADIR}:/data
+  #   ports:
+  #     - 8443:8443
+  #   restart: unless-stopped
 
 
     # container_name: vscode

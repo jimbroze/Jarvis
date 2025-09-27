@@ -19,8 +19,6 @@ configs/homeassistant/SERVICE_ACCOUNT.JSON
 configs/homeassistant/webostv.conf
 configs/homeassistant/fitbit.conf
 
-configs/nginx/config/app.conf
-
 Docker/database/crontab
 Docker/appdaemon/appdaemon.yaml
 
