@@ -4,8 +4,8 @@ services:
     image: grafana/alloy:latest
     restart: unless-stopped
     volumes:
-      - "${DATADIR}/configs/alloy/config.alloy:/etc/alloy/config.alloy"
-      - "${DATADIR}/configs/plex/Library/Application Support/Plex Media Server/Logs:/plexlogs"
+      - "${DATADIR}/apps/alloy/config/config.alloy:/etc/alloy/config.alloy"
+      - "${DATADIR}/apps/plex/config/Library/Application Support/Plex Media Server/Logs:/plexlogs"
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
       - "12345:12345"
@@ -24,10 +24,10 @@ services:
     ports:
       - "5050:5050"
     volumes:
-      - "${DATADIR}/configs/appdaemon/:/conf/"
+      - "${DATADIR}/apps/appdaemon/config/:/conf/"
     depends_on:
       - homeassistant
-    restart: unless-stopped
+    restart: no
 
   duplicati:
     image: ghcr.io/linuxserver/duplicati
@@ -39,9 +39,8 @@ services:
     volumes:
       - "${STORAGE_DATADIR}/duplicati/config:/config"
       - "${STORAGE_DATADIR}/duplicati/backup:/backups"
-      - "${DATADIR}/configs/homeassistant/backups:/source/homeassistant"
-      - "${DATADIR}/configs:/source/configs"
-      - "${DATADIR}/Docker:/source/Docker"
+      - "${DATADIR}/apps/homeassistant/config/backups:/source/homeassistant"
+      # - "${DATADIR}/configs:/source/configs"
       - "${DATADIR}/storage/db/backups:/source/db"
       - "${DATADIR}/storage/loki:/source/loki"
       # - "${DATADIR}/storage:/source/storage"
@@ -75,13 +74,13 @@ services:
     container_name: homeassistant
     image: "ghcr.io/home-assistant/home-assistant:stable"
     volumes:
-      - "${DATADIR}/configs/homeassistant/:/config/"
+      - "${DATADIR}/apps/homeassistant/config/:/config/"
       - "/etc/localtime:/etc/localtime:ro"
     restart: unless-stopped
     privileged: true
     network_mode: host
     extra_hosts:
-      - "home.${DOMAIN_NAME}:${DICKHOME_IP}"
+      - "${DOMAIN_NAME}:${DICKHOME_IP}"
     depends_on:
       - mariadb
       - influxdb
@@ -95,11 +94,11 @@ services:
   influxdb:
     container_name: influxdb
     build:
-      context: ./influxdb/
+      context: ./apps/influxdb/docker
     restart: unless-stopped
     volumes:
       - "${DATADIR}/storage/db/influxdb:/var/lib/influxdb2/"
-      - "${DATADIR}/configs/influxdb:/etc/influxdb2/"
+      - "${DATADIR}/apps/influxdb/config:/etc/influxdb2/"
       - "${DATADIR}/storage/db/backups/influxdb:/backup"
     environment: 
       DOCKER_INFLUXDB_INIT_MODE: setup
@@ -123,14 +122,14 @@ services:
     ports:
       - "3100:3100"
     volumes:
-      - "${DATADIR}/configs/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml"
+      - "${DATADIR}/apps/loki/config/loki-config.yaml:/etc/loki/loki-config.yaml"
       - "${STORAGE_DATADIR}/loki/:/loki/"
     command: -config.file=/etc/loki/loki-config.yaml
 
   mariadb:
     container_name: mariadb
     build:
-      context: ./mariadb/
+      context: ./apps/mariadb/docker
     image: mariadb
     restart: unless-stopped
     environment:
@@ -148,12 +147,12 @@ services:
   mosquitto:
     container_name: mosquitto
     build:
-      context: ./mosquitto/
+      context: ./apps/mosquitto/docker
       args:
         USER: ${MOSQUITTO_USER}
         PASSWORD: ${MOSQUITTO_PASS}
     volumes:
-      - "${DATADIR}/configs/mosquitto/:/mosquitto/"
+      - "${DATADIR}/apps/mosquitto/config/:/mosquitto/"
     ports:
       - "1883:1883"
     restart: unless-stopped
@@ -161,7 +160,7 @@ services:
   nginx:
     container_name: nginx
     build:
-      context: ./nginx/
+      context: ./apps/nginx/docker
       args:
         DOMAIN_NAME: ${DOMAIN_NAME}
         EMAIL: ${EMAIL}
@@ -171,11 +170,11 @@ services:
       CLOUDFLARE_DNS_TOKEN: ${CLOUDFLARE_DNS_TOKEN}
       FETCH_CERTIFICATES: "false"
     volumes:
-      - "${DATADIR}/configs/nginx/config/:/etc/nginx/config/"
+      - "${DATADIR}/apps/nginx/config/:/etc/nginx/config/"
       - "${DATADIR}/storage/certbot/data/:/etc/letsencrypt/"
       - "${DATADIR}/storage/certbot/www/:/var/www/certbot/"
     network_mode: host
-    restart: no
+    restart: on-failure:3
     healthcheck:
       test: curl --fail -I -X GET http://localhost:80 || exit 1
       interval: 30s
@@ -192,7 +191,7 @@ services:
       PGID: 1000
       fpm: false
     volumes:
-      - ${STORAGE_DATADIR}/organizr:/config
+      - ${DATADIR}/storage/organizr:/config
     ports:
       - 8980:80
 

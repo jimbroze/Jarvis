@@ -2,25 +2,21 @@
 
 storage/
 
-configs/homeassistant/image/
-configs/homeassistant/.storage/
-configs/homeassistant/.cloud/
-configs/homeassistant/custom_components/
-configs/homeassistant/www/
-configs/homeassistant/backups/
-configs/influxdb/
-configs/vscode
+apps/homeassistant/config/image/
+apps/homeassistant/config/.storage/
+apps/homeassistant/config/.cloud/
+apps/homeassistant/config/custom_components/
+apps/homeassistant/config/www/
+apps/homeassistant/config/backups/
+apps/influxdb/config/
 
-configs/homeassistant/google*
-configs/homeassistant/.google*
-configs/homeassistant/ip_bans.yaml
-configs/homeassistant/known_devices.yaml
-configs/homeassistant/SERVICE_ACCOUNT.JSON
-configs/homeassistant/webostv.conf
-configs/homeassistant/fitbit.conf
-
-Docker/database/crontab
-Docker/appdaemon/appdaemon.yaml
+apps/homeassistant/config/google*
+apps/homeassistant/config/.google*
+apps/homeassistant/config/ip_bans.yaml
+apps/homeassistant/config/known_devices.yaml
+apps/homeassistant/config/SERVICE_ACCOUNT.JSON
+apps/homeassistant/config/webostv.conf
+apps/homeassistant/config/fitbit.conf
 
 !custom_components/fitbit
 

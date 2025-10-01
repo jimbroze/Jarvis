@@ -68,10 +68,15 @@ http:
   # Uncommenting this will mean that you can only reach Home Assistant using the proxy, not directly via IP from other clients.
   # server_host: 127.0.0.1
   use_x_forwarded_for: true
+  use_x_frame_options: false
+  cors_allowed_origins:
+    - https://jimbroze.com
+    - https://home.jimbroze.com
   trusted_proxies:
     - 127.0.0.1
     - 192.168.1.11
     - ::1
+
 homeassistant:
   internal_url: http://192.168.1.11:8123
   external_url: !secret HA_URL
