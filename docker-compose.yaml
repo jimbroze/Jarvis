@@ -126,6 +126,21 @@ services:
       - "${STORAGE_DATADIR}/loki/:/loki/"
     command: -config.file=/etc/loki/loki-config.yaml
 
+  maintainerr:
+      container_name: maintainerr
+      image: ghcr.io/jorenn92/maintainerr:latest 
+      user: 1000:1000
+      volumes:
+        - "${DATADIR}/storage/maintainerr/:/opt/data/"
+      environment:
+        - TZ=Europe/London
+        - PGID=1000
+        - PUID=1000
+        # - BASE_PATH=/maintenance
+      ports:
+        - 6246:6246 
+      restart: unless-stopped
+
   mariadb:
     container_name: mariadb
     build:
@@ -194,6 +209,19 @@ services:
       - ${DATADIR}/storage/organizr:/config
     ports:
       - 8980:80
+
+  overseerr:
+    image: sctx/overseerr:latest
+    container_name: overseerr
+    environment:
+      # - LOG_LEVEL=debug
+      - TZ=Europe/London
+      - PORT=5055
+    ports:
+      - 5055:5055
+    volumes:
+      - "${DATADIR}/storage/overseerr/:/app/config/"
+    restart: unless-stopped
 
   plex:
     container_name: plex

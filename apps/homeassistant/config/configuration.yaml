@@ -36,10 +36,6 @@ device_tracker:
   #   new_device_defaults:
   #     track_new_devices: True
 
-duckdns:
-  domain: jimbroze
-  access_token: !secret duck_token
-
 frontend:
   themes: !include_dir_merge_named themes
 
@@ -70,8 +66,8 @@ http:
   use_x_forwarded_for: true
   use_x_frame_options: false
   cors_allowed_origins:
-    - https://jimbroze.com
-    - https://home.jimbroze.com
+    - !secret ROOT_URL
+    - !secret HA_URL
   trusted_proxies:
     - 127.0.0.1
     - 192.168.1.11
