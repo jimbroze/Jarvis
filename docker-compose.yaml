@@ -306,3 +306,9 @@ services:
       - 445:445
     cap_add:
       - CAP_NET_ADMIN
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
